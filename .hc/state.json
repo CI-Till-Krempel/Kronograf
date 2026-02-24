@@ -1,0 +1,17 @@
+{
+  "product_vision": "",
+  "product_goals": [],
+  "product_backlog": [],
+  "definition_of_done": [
+    "Code reviewed",
+    "Automated tests passing",
+    "Acceptance criteria met",
+    "No critical security issues",
+    "Docs updated if needed"
+  ],
+  "sprint_goal": "",
+  "sprint_backlog": [],
+  "impediment_log": [],
+  "retro_actions": [],
+  "decision_log": []
+}
