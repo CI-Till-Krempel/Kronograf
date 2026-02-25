@@ -26,17 +26,17 @@ dependencies {
 
     // Testing libraries
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1") // Corrected version
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
 }
 
-// Configure the Java and Kotlin compilers.
+// Configure the Java and Kotlin compilers for Java 17.
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "17"
 }
 
 // Configure the test runner.

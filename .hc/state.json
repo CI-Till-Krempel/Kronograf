@@ -239,6 +239,11 @@
       "description": "The CI job for PR #3 is stuck 'in progress' and is not completing. This is preventing the team from getting a final pass/fail signal, blocking the merge of the build system fix and the start of Sprint 2.",
       "owner": "ScrumMaster",
       "status": "open"
+    },
+    {
+      "description": "The DevTeam agent overwrote a critical manual configuration change (reverting JDK from 17 to 11), causing a cascade of CI failures. This highlights a process failure where agent actions do not respect user-provided context, leading to wasted effort.",
+      "owner": "DevTeam",
+      "status": "open"
     }
   ],
   "retro_actions": [
@@ -246,6 +251,12 @@
       "action": "Implement a 'debug CI' workflow that allows the DevTeam to SSH into the GitHub Actions runner environment. This will provide direct, interactive access to investigate complex build failures in real-time.",
       "owner": "DevTeam",
       "success_metric": "The time to diagnose and fix a CI failure is reduced by 50% for the next sprint.",
+      "status": "open"
+    },
+    {
+      "action": "Dedicate a focused timebox to a full, interactive debugging session of the CI environment. The goal is to create a 100% reliable 'green' build for the main branch, even if it means simplifying dependencies or build steps further. This must be the first priority before any new features are added.",
+      "owner": "DevTeam",
+      "success_metric": "The main branch has a consistently green CI build for three consecutive commits.",
       "status": "open"
     }
   ],
