@@ -27,6 +27,9 @@ dependencies {
     // Testing libraries
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+
+    // Needed by Gradle to launch JUnit Platform tests
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 // Configure the Java and Kotlin compilers for Java 17.
