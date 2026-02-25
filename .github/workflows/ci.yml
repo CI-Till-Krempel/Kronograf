@@ -29,3 +29,9 @@ jobs:
 
       - name: Check code style
         run: ./gradlew ktlintCheck
+
+      - name: Display test results on failure
+        if: failure()
+        run: |
+          echo "Build failed. Displaying test result XML files..."
+          find . -type f -name "*.xml" -path "**/test-results/**/*.xml" -exec sh -c 'echo "--- {} ---"; cat {}; echo; echo "---"' \;
