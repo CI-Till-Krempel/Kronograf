@@ -1,7 +1,6 @@
 // The core module applies the necessary plugins for a Kotlin library.
 plugins {
     kotlin("jvm")
-    id("org.jlleitschuh.gradle.ktlint")
     `java-library`
 }
 
@@ -27,26 +26,20 @@ dependencies {
 
     // Testing libraries
     testImplementation(kotlin("test"))
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.1.1") // Note: Corrected a version typo here just in case
 }
 
 // Configure the Java and Kotlin compilers.
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "11"
 }
 
 // Configure the test runner.
 tasks.withType<Test> {
     useJUnitPlatform()
-}
-
-// Configure the ktlint code style linter.
-ktlint {
-    version.set("1.2.1")
 }

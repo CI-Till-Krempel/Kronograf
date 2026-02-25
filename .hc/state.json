@@ -234,6 +234,11 @@
       "description": "The DevTeam agent cannot set file permissions (e.g., via chmod). This is blocking the creation of an executable `gradlew` script required to fix the CI pipeline.",
       "owner": "DevTeam",
       "status": "open"
+    },
+    {
+      "description": "The CI job for PR #3 is stuck 'in progress' and is not completing. This is preventing the team from getting a final pass/fail signal, blocking the merge of the build system fix and the start of Sprint 2.",
+      "owner": "ScrumMaster",
+      "status": "open"
     }
   ],
   "retro_actions": [
