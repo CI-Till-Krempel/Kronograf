@@ -11,7 +11,8 @@ class RuleResolver {
 
     /**
      * Selects the single best matching rule from a list for a given tool.
-     * The "best" rule is the one whose version range matches the detected version.
+     * The "best" rule is the one whose version range matches the detected version,
+     * or a fallback rule with a wildcard version range if no version was detected.
      *
      * @param rules A list of rules for a single metric from a plugin.
      * @param detectedVersions A map of tool ID to its detected semantic version.
@@ -21,16 +22,15 @@ class RuleResolver {
     fun resolve(rules: List<Rule>, detectedVersions: Map<String, Semver>): Rule? {
         val matchingRules = rules.filter { rule ->
             val toolVersion = detectedVersions[rule.tool]
-            
-            // If the tool for this rule was not detected, it can't match.
-            if (toolVersion == null) {
-                // However, a rule with a wildcard version range and an undetected tool
-                // could be considered a fallback. For now, we require version detection.
-                return@filter false
-            }
 
-            // Check if the detected version satisfies the rule's range.
-            toolVersion.satisfies(rule.versionRange)
+            if (toolVersion != null) {
+                // Version was detected, so check if it satisfies the range.
+                toolVersion.satisfies(rule.versionRange)
+            } else {
+                // No version was detected for this rule's tool.
+                // A rule can only match if it has a wildcard version range.
+                rule.versionRange == "*"
+            }
         }
 
         if (matchingRules.size > 1) {
