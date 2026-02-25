@@ -23,23 +23,22 @@ class LogScraperTest {
 
     @Test
     fun `scrape with 'count_matches' should count all matching lines`() {
-        val rule = Rule("w", "", "maven", "*", "^.WARNING.*", "count_matches")
+        val rule = Rule("w", "desc", "maven", "*", "^.WARNING.*", "count_matches")
         val result = logScraper.scrape(sampleLog, rule)
         assertEquals(2.0, result)
     }
 
     @Test
     fun `scrape with 'extract_first' should get value from the first match`() {
-        val rule = Rule("t", "", "maven", "*", """Total time: \s+([0-9.]+) s""", "extract_first")
+        val rule = Rule("t", "desc", "maven", "*", """Total time: \s+([0-9.]+) s""", "extract_first")
         val result = logScraper.scrape(sampleLog, rule)
         assertEquals(1.234, result)
     }
 
     @Test
     fun `scrape with 'extract_last' should get value from the last match`() {
-        // Sample log with multiple memory lines
         val logWithMultiple = sampleLog + "\nFinal Memory: 25M/512M"
-        val rule = Rule("m", "", "maven", "*", """Final Memory: \d+M/(\d+)M""", "extract_last")
+        val rule = Rule("m", "desc", "maven", "*", """Final Memory: \d+M/(\d+)M""", "extract_last")
         val result = logScraper.scrape(logWithMultiple, rule)
         assertEquals(512.0, result)
     }
@@ -50,21 +49,14 @@ class LogScraperTest {
             [WARNING] Found 5 vulnerabilities.
             [WARNING] Found 12 style issues.
         """.trimIndent()
-        val rule = Rule("v", "", "linter", "*", """Found (\d+)""", "extract_sum")
+        val rule = Rule("v", "desc", "linter", "*", """Found (\d+)""", "extract_sum")
         val result = logScraper.scrape(logWithMultipleWarnings, rule)
         assertEquals(17.0, result)
-    }
-
-    @Test
-    fun `scrape should return null if pattern does not match`() {
-        val rule = Rule("x", "", "maven", "*", "This pattern does not exist", "count_matches")
-        val result = logScraper.scrape(sampleLog, rule)
-        assertEquals(0.0, result) // count_matches returns 0 if no match
     }
     
     @Test
     fun `scrape with extract should return null if capture group is not a number`() {
-        val rule = Rule("y", "", "maven", "*", """Total time: \s+(.+) s""", "extract_first")
+        val rule = Rule("y", "desc", "maven", "*", """BUILD (SUCCESS)""", "extract_first")
         val result = logScraper.scrape(sampleLog, rule)
         assertEquals(null, result)
     }

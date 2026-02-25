@@ -23,19 +23,21 @@ class RuleResolver {
         val matchingRules = rules.filter { rule ->
             val toolVersion = detectedVersions[rule.tool]
 
+            // Handle the wildcard case separately as semver4j does not support it directly.
+            if (rule.versionRange == "*") {
+                return@filter true
+            }
+
             if (toolVersion != null) {
                 // Version was detected, so check if it satisfies the range.
                 toolVersion.satisfies(rule.versionRange)
             } else {
-                // No version was detected for this rule's tool.
-                // A rule can only match if it has a wildcard version range.
-                rule.versionRange == "*"
+                // No version was detected for this rule's tool and it's not a wildcard.
+                false
             }
         }
 
         if (matchingRules.size > 1) {
-            // This indicates a misconfiguration in the plugin, as two rules
-            // for the same tool have overlapping version ranges.
             val ruleIds = matchingRules.joinToString(", ") { it.id }
             throw IllegalStateException(
                 "Multiple rules ($ruleIds) match the detected versions. Please check plugin for overlapping version_range."

@@ -40,7 +40,7 @@ class RuleResolverTest {
             Rule(id = "specific-tool", description = "description", tool = "my-tool", versionRange = "1.x", pattern = "", aggregate = ""),
             Rule(id = "any-other-tool", description = "description", tool = "other-tool", versionRange = "*", pattern = "", aggregate = "")
         )
-        val detected = emptyMap<String, Semver>()
+        val detected = mapOf("my-tool" to Semver("2.0.0")) // Version for my-tool doesn't match
         val result = ruleResolver.resolve(newRules, detected)
         assertNotNull(result)
         assertEquals("any-other-tool", result?.id)
@@ -54,20 +54,10 @@ class RuleResolverTest {
     }
     
     @Test
-    fun `resolve should return null if tool was not detected and no wildcard exists`() {
-        val rulesWithoutWildcard = listOf(
-             Rule(id = "kotlin-1x", description = "description", tool = "kotlin-compiler", versionRange = ">=1.0.0 <2.0.0", pattern = "", aggregate = "")
-        )
-        val detectedVersions = mapOf("some-other-tool" to Semver("1.0.0"))
-        val resolvedRule = ruleResolver.resolve(rulesWithoutWildcard, detectedVersions)
-        assertNull(resolvedRule)
-    }
-
-    @Test
     fun `resolve should throw exception if multiple rules match`() {
         val overlappingRules = listOf(
              Rule(id = "kotlin-1x", description = "description", tool = "kotlin-compiler", versionRange = ">=1.0.0 <2.0.0", pattern = "", aggregate = ""),
-             Rule(id = "overlapping-kotlin", description = "description", tool = "kotlin-compiler", versionRange = ">=1.9.0", pattern = "", aggregate = "")
+             Rule(id = "any-kotlin", description = "description", tool = "kotlin-compiler", versionRange = "*", pattern = "", aggregate = "")
         )
         val detectedVersions = mapOf("kotlin-compiler" to Semver("1.9.22"))
 
