@@ -1,7 +1,112 @@
 {
   "product_vision": "",
   "product_goals": [],
-  "product_backlog": [],
+  "product_backlog": [
+    {
+      "user_story": "As a Plugin Author, I want a core engine that can load YAML plugin files, detect tool versions from logs, and apply the correct versioned rules, so that I can define and test KPI extraction logic for any build tool.",
+      "title": "Implement the core Plugin Engine",
+      "id": "EPIC-1",
+      "priority": "P0",
+      "dependencies": "None. This is the foundational component.",
+      "acceptance_criteria": [
+        "Given a valid `kronograf.yml` file and a set of plugin YAML files, When the engine is invoked, Then it correctly loads and parses all plugin definitions.",
+        "Given a build log file containing a tool version string (e.g., \"Gradle 8.9\"), When the engine runs version detection, Then it correctly identifies the tool and its semantic version.",
+        "Given a plugin with multiple versioned rules for a metric, When the engine processes a log file with a detected tool version, Then it selects and applies only the rule whose `version_range` matches the detected version.",
+        "Given a rule with a `log_scrape` source, When the engine processes a log file, Then it correctly applies the regex pattern and `aggregate` mode (e.g., `count_matches`, `extract_first`) to produce the expected metric value.",
+        "Given a rule with a structured report source (e.g., `junit_xml`), When the engine is pointed at a directory of report files, Then it correctly parses the files and aggregates the metric value as specified."
+      ],
+      "value_hypothesis": "A robust and testable plugin engine is the foundation of Kronograf. Getting this right will enable rapid, parallel development of support for new tech stacks and is the highest-value component for validating the core product concept."
+    },
+    {
+      "title": "Implement Git-based Data Store",
+      "value_hypothesis": "A git-native data store is a key differentiator, making the tool lightweight and easy to adopt. This feature is critical for the \"no external services\" value proposition.",
+      "id": "EPIC-2",
+      "acceptance_criteria": [
+        "Given the KPI extractor has produced a JSON data point for a commit, When the data store stage is executed, Then the system checks out the configured data branch (e.g., `kronograf-data`), creating it if it doesn't exist.",
+        "Given a new JSON data point, When the data store stage runs, Then the JSON data point is appended as a new line to the `metrics.ndjson` file in the data branch.",
+        "Given the `metrics.ndjson` file has been updated, When the data store stage completes, Then the changes are committed and pushed back to the remote repository using a dedicated CI token.",
+        "Given the extractor runs for a commit that already has a data point in `metrics.ndjson`, When the data store stage is executed, Then it does not write a duplicate entry."
+      ],
+      "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
+      "dependencies": "EPIC-1 (Plugin Engine to generate data)",
+      "priority": "P0"
+    },
+    {
+      "value_hypothesis": "Delivering a high-quality, comprehensive reference plugin demonstrates the power and flexibility of the plugin engine and provides immediate value to a large user base (Android developers).",
+      "id": "EPIC-3",
+      "title": "Build the Android/Kotlin/Gradle Reference Plugin",
+      "user_story": "As a Plugin Author, I want a complete, production-ready plugin for a popular tech stack (Android/Kotlin/Gradle), so that I have a clear example of how to define various metric source types and aggregation rules.",
+      "dependencies": "EPIC-1",
+      "priority": "P0",
+      "acceptance_criteria": [
+        "Given an Android project built with Gradle and Kotlin, When the `android-kotlin-gradle` plugin is active, Then it successfully extracts `test_count` from `junit_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `test_coverage_pct` from `jacoco_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `build_warnings` by scraping the build log, respecting Kotlin compiler versions.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `lint_errors` and `lint_warnings` from `android_lint_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts CVE counts (critical, high, medium) from `owasp_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `detekt_issues` by scraping the build log."
+      ]
+    },
+    {
+      "title": "Create Static SVG Chart Generator",
+      "value_hypothesis": "The embeddable charts are the primary value proposition for the end-user. This feature makes the collected data visible and useful, closing the communication gap for stakeholders.",
+      "id": "EPIC-4",
+      "acceptance_criteria": [
+        "Given a `metrics.ndjson` file in the data branch, When the chart generator is run, Then it creates one SVG file for each metric configured in `kronograf.yml`.",
+        "Given a generated SVG chart, When viewed in a browser or GitHub README, Then it displays a clear time-series line graph of the metric's values.",
+        "Given the configuration specifies a `window_days` of 90, When the chart is generated, Then it only includes data points from the last 90 days.",
+        "Given the chart is generated, When committed to the data branch, Then it can be embedded in a Markdown file using a raw git URL and it renders correctly.",
+        "Given the SVG file, When inspected, Then it is self-contained, under 15KB, and contains CSS for dark/light mode."
+      ],
+      "user_story": "As an Engineering Lead, I want the system to generate time-series SVG charts from the stored metric data, so that I can embed them in my `README.md` to visualize quality trends.",
+      "dependencies": "EPIC-2",
+      "priority": "P1"
+    },
+    {
+      "value_hypothesis": "A strong local development and testing story for plugins is crucial for building a community and enabling the \"no-code\" extensibility promised in the vision. This CLI is key to that experience.",
+      "id": "EPIC-5",
+      "title": "Create Plugin Author CLI",
+      "user_story": "As a Plugin Author, I want a set of CLI commands to validate and test my plugin definitions, so that I can confidently develop new plugins for any tech stack without requiring a full CI pipeline.",
+      "dependencies": "EPIC-1",
+      "priority": "P1",
+      "acceptance_criteria": [
+        "Given a plugin YAML file with correct syntax and passing sample assertions, When I run `kronograf plugin validate <file>`, Then the command exits with a success code and reports the plugin is valid.",
+        "Given a plugin YAML file with a syntax error or a failing `sample_lines` assertion, When I run `kronograf plugin validate <file>`, Then the command exits with an error code and prints a descriptive error message.",
+        "Given a plugin file and a real build log, When I run `kronograf plugin test <plugin_file> --log <log_file>`, Then the command runs all configured rules against the log and reports the extracted values.",
+        "Given a project with a `kronograf.yml` file, When I run `kronograf plugin list`, Then the command lists all plugins activated for the project.",
+        "Given a build log and a plugin, When I run `kronograf plugin dry-run --log <log_file> --plugin <plugin_id>`, Then the output shows exactly which rules from the plugin matched lines in the log and what values were extracted."
+      ]
+    },
+    {
+      "title": "Create GitHub Actions Integration",
+      "value_hypothesis": "Providing a seamless, native integration for the largest CI/CD platform will dramatically lower the barrier to adoption and help us achieve the \"Time to first chart < 30 minutes\" success metric.",
+      "id": "EPIC-6",
+      "acceptance_criteria": [
+        "Given a GitHub Actions workflow, When I use the `kronograf/kronograf-action@v1`, Then the action successfully runs the KPI extractor over my build logs.",
+        "Given the action is configured to run the data store and chart generator steps, When the workflow job completes on the main branch, Then the `kronograf-data` branch is updated with the new data point and regenerated SVG charts.",
+        "Given the action runs, When I inspect the logs, Then it correctly uses the built-in `GITHUB_TOKEN` for authentication.",
+        "Given the action's documentation, When I read it, Then it clearly explains all inputs (e.g., log file path, configuration file path) and provides a copy-pasteable example."
+      ],
+      "user_story": "As a DevOps Engineer on GitHub, I want a native GitHub Action to run Kronograf, so that I can easily integrate KPI extraction and chart generation into my existing CI/CD workflow with just a few lines of YAML.",
+      "dependencies": "EPIC-1, EPIC-2, EPIC-4",
+      "priority": "P1"
+    },
+    {
+      "value_hypothesis": "The backfill tool solves the \"empty chart\" problem for existing projects, turning Kronograf from a \"nice tool for the future\" into an \"insightful tool today.\" This is a killer feature for driving adoption in established teams.",
+      "id": "EPIC-7",
+      "title": "Build Historical Backfill Tool",
+      "user_story": "As an Engineering Lead adopting Kronograf in a mature repository, I want a CLI tool to generate historical KPI data from past commits, so that my charts show meaningful long-term trends from day one.",
+      "dependencies": "EPIC-1, EPIC-2",
+      "priority": "P2",
+      "acceptance_criteria": [
+        "Given I run `kronograf backfill` in my repository, When the tool executes, Then it iterates through the git history (e.g., merge commits on main), checks out each commit into a temporary worktree, and runs the configured build command.",
+        "Given a historical build completes successfully, When the extractor runs, Then a data point is appended to the data store stamped with the original commit timestamp, not the current time.",
+        "Given a backfill operation is interrupted, When I re-run the `kronograf backfill` command, Then the tool automatically skips commits that already have data points and resumes from where it left off.",
+        "Given a historical commit fails to build, When the tool processes it, Then it handles the failure according to the `on_build_failure` policy in `kronograf.yml` (e.g., records nulls) and continues.",
+        "Given I run the tool with `--dry-run`, When it executes, Then it prints the list of commits it would process without actually running any builds."
+      ]
+    }
+  ],
   "definition_of_done": [
     "Code reviewed",
     "Automated tests passing",
@@ -10,8 +115,100 @@
     "Docs updated if needed"
   ],
   "sprint_goal": "",
-  "sprint_backlog": [],
+  "sprint_backlog": [
+    {
+      "title": "EPIC-1",
+      "test_approach": "This epic will be heavily unit-tested. We will practice Test-Driven Development (TDD), creating test cases for each piece of logic before implementation. This includes tests with sample plugin files, sample log files, and sample JUnit XML reports to cover all acceptance criteria.",
+      "estimate": 25000,
+      "risks_assumptions": [
+        "Assumption: A robust, well-maintained YAML parsing library for Kotlin/JVM is available (e.g., Jackson).",
+        "Risk: Semantic version range matching (`>=1.0.0 <2.0.0`) can be complex. We will need to use a reliable third-party library to handle this correctly.",
+        "Risk: The performance of applying many regex patterns to large log files could be a concern. We will need to be mindful of efficiency in the `LogScraper` implementation."
+      ],
+      "tasks": [
+        "[ ] Initialize a new Gradle project with a Kotlin library module.",
+        "[ ] Define Kotlin data classes to model the entire YAML plugin structure (`Plugin`, `Metric`, `Source`, `Rule`, etc.).",
+        "[ ] Implement a `PluginLoader` class that reads and parses YAML files into the data class models.",
+        "[ ] Implement a `VersionDetector` that uses regex patterns to find tool versions in log files.",
+        "[ ] Implement a `RuleResolver` that can select the correct versioned rule based on a detected tool version.",
+        "[ ] Implement the `LogScraper` source processor, including all aggregation modes (`count_matches`, `extract_first`, etc.).",
+        "[ ] Implement the first structured report parser for `junit_xml`.",
+        "[ ] Add comprehensive unit tests for YAML parsing, version detection, rule resolution, and all aggregation modes.",
+        "[ ] Create a basic CI/CD workflow on GitHub Actions that builds the project and runs the tests."
+      ],
+      "dod_checks": [
+        "Code implemented in Kotlin/Gradle.",
+        "All acceptance criteria for EPIC-1 are met.",
+        "Unit test coverage for the new logic is above 80%.",
+        "The code is peer-reviewed and approved.",
+        "The CI build is green (compiles, passes all tests).",
+        "No new static analysis issues of high or critical severity are introduced."
+      ],
+      "approach": "We will create a new Kotlin/Gradle library module that will serve as the core of the `kronograf` tool. We'll use a standard library like Jackson with its YAML extension for robust parsing of plugin files into strongly-typed Kotlin data classes. The engine will be designed with clear interfaces for different `Source` types (log scrapers, structured parsers) to make it extensible. Version range matching will be handled by a dedicated semver library."
+    },
+    {
+      "title": "EPIC-2",
+      "estimate": 20000,
+      "approach": "I will use a robust, pure JVM library for Git operations, such as JGit. This avoids the need to shell out to the `git` CLI, making our tool self-contained and more portable. The implementation will follow a clear sequence: initialize a client for the repository, check for the existence of the data branch, create it from the main branch if it's missing, switch to it, read the `metrics.ndjson` file to check for duplicates, append the new data point, and then programmatically stage, commit, and push the changes. Authentication for the push operation will be handled via a configurable token.",
+      "test_approach": "The logic will be tested at two levels. Unit tests will mock the JGit library to verify the correctness of our data handling and decision logic (e.g., duplicate checking). Integration tests will use temporary file-system-based Git repositories to test the full, end-to-end process of creating branches, committing files, and pushing between local clones without any network dependency.",
+      "tasks": [
+        "[ ] Add the JGit library dependency to our `build.gradle.kts` file.",
+        "[ ] Create a `GitDataStore` class that encapsulates all Git interaction logic.",
+        "[ ] Implement a method to find and check out the data branch, including the logic to create it if it does not exist.",
+        "[ ] Implement a method to read the `metrics.ndjson` file efficiently and check if a data point for the current commit SHA already exists.",
+        "[ ] Implement the core logic to append the new data point (a single line of NDJSON) to the file.",
+        "[ ] Implement methods to programmatically stage the updated file (`git add`), create a commit with a standard message (`git commit`), and push to the remote origin (`git push`).",
+        "[ ] Design and implement a simple, secure strategy for handling push authentication in a CI environment (e.g., via an environment variable containing a token).",
+        "[ ] Write unit tests for the data handling logic, mocking the Git interactions.",
+        "[ ] Write integration tests that operate on temporary local Git repositories to validate the end-to-end flow of branch creation, append, commit, and push."
+      ],
+      "dod_checks": [
+        "Code implemented in Kotlin/Gradle using the JGit library.",
+        "All acceptance criteria for EPIC-2 are met.",
+        "Unit and integration tests provide >80% coverage for the new code.",
+        "Code is peer-reviewed and approved.",
+        "CI build remains green.",
+        "No new high-severity static analysis issues are introduced."
+      ],
+      "risks_assumptions": [
+        "Assumption: The JGit library provides all the necessary functionality and is stable.",
+        "Risk: Programmatic Git authentication can be complex. We need to ensure our solution is secure and works reliably in various CI environments.",
+        "Risk: A potential for race conditions exists if two CI pipelines for the same project run concurrently. We will need to implement a simple fetch/rebase/push loop with retries to handle this gracefully."
+      ]
+    }
+  ],
   "impediment_log": [],
   "retro_actions": [],
-  "decision_log": []
+  "decision_log": [
+    {
+      "title": "Adopt Kronograf PRD and Formalize Product Vision",
+      "decision": "Adopt the user-provided PRD for 'Kronograf' as the guiding document for product vision, goals, and scope. The synthesized Product Vision statement is now official.",
+      "rationale": "The PRD is comprehensive and provides an excellent foundation, saving significant discovery time. It clearly outlines the problem, solution, users, and scope, allowing us to move directly to backlog creation.",
+      "owner": "ProductOwner"
+    },
+    {
+      "title": "Adopt Kotlin and Gradle as the core technology stack",
+      "decision": "The project will be implemented using Kotlin as the primary programming language and Gradle as the build tool. The initial CI/CD integration will be a GitHub Action.",
+      "rationale": "This stack aligns perfectly with the first target plugin (android-kotlin-gradle), ensuring deep ecosystem expertise. Kotlin is a modern, maintainable language, and the JVM is cross-platform, which supports the long-term goal of integrating with multiple CI/CD systems. The architecture will separate the core CLI tool from the CI wrapper (GitHub Action) to facilitate future portability.",
+      "owner": "DevTeam"
+    },
+    {
+      "title": "Start Sprint 1",
+      "decision": "Sprint 1 will officially begin with the goal of building the foundational data pipeline.",
+      "rationale": "The Sprint Goal is defined, the Sprint Backlog is selected, and the DevTeam has confirmed their commitment and capacity to complete the work within the allocated budget. All conditions for starting the sprint have been met.",
+      "owner": "ScrumMaster"
+    }
+  ],
+  "sprint_report": null,
+  "budgets": {
+    "total": 500000,
+    "agents": {
+      "DevTeam": 50000
+    }
+  },
+  "token_usage": null,
+  "story_estimates": {
+    "EPIC-1": 25000,
+    "EPIC-2": 20000
+  }
 }
