@@ -13,8 +13,10 @@
 @rem See the License for the specific language governing permissions and
 @rem limitations under the License.
 @rem
+@rem SPDX-License-Identifier: Apache-2.0
+@rem
 
-@if "%DEBUG%" == "" @echo off
+@if "%DEBUG%"=="" @echo off
 @rem ##########################################################################
 @rem
 @rem  Gradle startup script for Windows
@@ -24,111 +26,68 @@
 @rem Set local scope for the variables with windows NT shell
 if "%OS%"=="Windows_NT" setlocal
 
+set DIRNAME=%~dp0
+if "%DIRNAME%"=="" set DIRNAME=.
+@rem This is normally unused
+set APP_BASE_NAME=%~n0
+set APP_HOME=%DIRNAME%
+
+@rem Resolve any "." and ".." in APP_HOME to make it shorter.
+for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
+
 @rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
-@rem Find the application home.
-set "APP_HOME=%~dp0"
+@rem Find java.exe
+if defined JAVA_HOME goto findJavaFromJavaHome
 
-@rem Find the application name.
-set "APP_NAME=Gradle"
-set "APP_BASE_NAME=%~n0"
+set JAVA_EXE=java.exe
+%JAVA_EXE% -version >NUL 2>&1
+if %ERRORLEVEL% equ 0 goto execute
 
-@rem Use the maximum available, or set MAX_FD != -1 to use that value.
-set MAX_FD=maximum
+echo. 1>&2
+echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH. 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
 
-@rem For Darwin, add options to specify how the application appears in the dock
-if "%OS%" == "Darwin" (
-    set "GRADLE_OPTS=%GRADLE_OPTS% \"-Xdock:name=%APP_NAME%\" \"-Xdock:icon=%APP_HOME%media\gradle.icns\""
-)
+goto fail
 
-@rem OS specific support (must be 'true' or 'false').
-set cygwin=false
-set msys=false
-set darwin=false
-set nonstop=false
-if "%OS%" == "CYGWIN_NT-10.0" (
-    set cygwin=true
-)
-if "%OS%" == "Darwin" (
-    set darwin=true
-)
-if "%OS%" == "MINGW64_NT-10.0" (
-    set msys=true
-)
-if "%OS%" == "NONSTOP_KERNEL" (
-    set nonstop=true
-)
+:findJavaFromJavaHome
+set JAVA_HOME=%JAVA_HOME:"=%
+set JAVA_EXE=%JAVA_HOME%/bin/java.exe
 
-@rem Attempt to find JAVACMD
-if defined JAVA_HOME (
-    if exist "%JAVA_HOME%\jre\bin\java.exe" (
-        set "JAVACMD=%JAVA_HOME%\jre\bin\java.exe"
-    ) else (
-        set "JAVACMD=%JAVA_HOME%\bin\java.exe"
-    )
-    if not exist "%JAVACMD%" (
-        echo ERROR: JAVA_HOME is set to an invalid directory: "%JAVA_HOME%"
-        echo.
-        echo Please set the JAVA_HOME variable in your environment to match the
-        echo location of your Java installation.
-        goto L_End
-    )
-) else (
-    set "JAVACMD=java.exe"
-    where %JAVACMD% >nul 2>nul
-    if %errorlevel% neq 0 (
-        echo ERROR: JAVA_HOME is not set and no 'java.exe' command could be found in your PATH.
-        echo.
-        echo Please set the JAVA_HOME variable in your environment to match the
-        echo location of your Java installation.
-        goto L_End
-    )
-)
+if exist "%JAVA_EXE%" goto execute
 
-@rem Increase the maximum number of open file descriptors
-if "%cygwin%" == "false" (
-    if "%darwin%" == "false" (
-        if "%nonstop%" == "false" (
-            if not "%MAX_FD%" == "maximum" (
-                if not "%MAX_FD%" == "max" (
-                    if not "%MAX_FD%" == "" (
-                        ulimit -n %MAX_FD%
-                    )
-                )
-            )
-        )
-    )
-)
+echo. 1>&2
+echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME% 1>&2
+echo. 1>&2
+echo Please set the JAVA_HOME variable in your environment to match the 1>&2
+echo location of your Java installation. 1>&2
 
-@rem Collect all arguments for the java command, following the shell quoting and substitution rules
-set "CLASSPATH=%APP_HOME%gradle\wrapper\gradle-wrapper.jar"
+goto fail
 
-@rem Split up the JVM options again from the Gradle options
-set "JVM_OPTS="
-set "GRADLE_OPTS="
+:execute
+@rem Setup the command line
 
-:L_Loop
-if "x%~1" == "x" goto L_Done
-if "x%~1" == "x-D" (
-    set "JVM_OPTS=%JVM_OPTS% %~1%~2"
-    shift
-) else if "x%~1" == "x-X" (
-    set "JVM_OPTS=%JVM_OPTS% %~1"
-) else if "x%~1" == "x-XX" (
-    set "JVM_OPTS=%JVM_OPTS% %~1"
-) else (
-    goto L_Done
-)
-shift
-goto L_Loop
-:L_Done
+
 
 @rem Execute Gradle
-"%JAVACMD%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %*
+"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -jar "%APP_HOME%\gradle\wrapper\gradle-wrapper.jar" %*
 
-:L_End
+:end
+@rem End local scope for the variables with windows NT shell
+if %ERRORLEVEL% equ 0 goto mainEnd
+
+:fail
+rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
+rem the _cmd.exe /c_ return code!
+set EXIT_CODE=%ERRORLEVEL%
+if %EXIT_CODE% equ 0 set EXIT_CODE=1
+if not ""=="%GRADLE_EXIT_CONSOLE%" exit %EXIT_CODE%
+exit /b %EXIT_CODE%
+
+:mainEnd
 if "%OS%"=="Windows_NT" endlocal
 
-:L_Exit
-exit /b %errorlevel%
+:omega
