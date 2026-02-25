@@ -224,6 +224,11 @@
       "description": "The CI build for PR #1 is failing repeatedly despite multiple fixes. The root cause is still not fully understood, and this is consuming significant sprint capacity and blocking the completion of EPIC-1.",
       "owner": "ScrumMaster",
       "status": "open"
+    },
+    {
+      "description": "The CI workflow for PR #1 is stuck in a 'queued' state and is not starting. This prevents any CI feedback and completely blocks development progress. The cause is likely a syntax error in the `ci.yml` file or an issue with the runner environment.",
+      "owner": "ScrumMaster",
+      "status": "open"
     }
   ],
   "retro_actions": [],

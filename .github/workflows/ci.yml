@@ -34,4 +34,8 @@ jobs:
         if: failure()
         run: |
           echo "Build failed. Displaying test result XML files..."
-          find . -type f -name "*.xml" -path "**/test-results/**/*.xml" -exec sh -c 'echo "--- {} ---"; cat {}; echo; echo "---"' \;
+          for file in $(find . -type f -name "*.xml" -path "**/test-results/**/*.xml"); do
+            echo "--- Contents of $file ---"
+            cat "$file"
+            echo
+          done
