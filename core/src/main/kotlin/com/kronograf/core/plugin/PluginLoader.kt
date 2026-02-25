@@ -9,7 +9,7 @@ import com.kronograf.core.model.Plugin
 import java.io.File
 
 /**
- * Responsible for loading and parsing plugin YAML files.
+ * Responsible for loading and parsing plugin YAML files from the filesystem.
  */
 class PluginLoader {
 
