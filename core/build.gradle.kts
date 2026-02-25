@@ -26,7 +26,7 @@ dependencies {
 
     // Testing libraries
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.1.1") // Note: Corrected a version typo here just in case
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1") // Corrected version
 }
 
 // Configure the Java and Kotlin compilers.
