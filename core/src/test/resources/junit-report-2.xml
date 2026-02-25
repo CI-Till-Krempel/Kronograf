@@ -1,0 +1,6 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.IntegrationTest" tests="15" failures="0" errors="0" skipped="0" timestamp="2026-02-24T10:05:00" hostname="localhost" time="12.5">
+  <testcase name="integrationTest1" classname="com.example.IntegrationTest" time="5.0"/>
+  <testcase name="integrationTest2" classname="com.example.IntegrationTest" time="7.5"/>
+</testsuite>

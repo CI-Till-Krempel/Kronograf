@@ -1,0 +1,11 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.UnitTest" tests="42" failures="1" errors="0" skipped="2" timestamp="2026-02-24T10:00:00" hostname="localhost" time="0.5">
+  <testcase name="test1" classname="com.example.UnitTest" time="0.1"/>
+  <testcase name="test2" classname="com.example.UnitTest" time="0.2">
+    <failure message="assertion failed" type="java.lang.AssertionError">...</failure>
+  </testcase>
+  <testcase name="test3" classname="com.example.UnitTest" time="0.0">
+    <skipped/>
+  </testcase>
+</testsuite>
