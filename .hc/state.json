@@ -105,6 +105,17 @@
         "Given a historical commit fails to build, When the tool processes it, Then it handles the failure according to the `on_build_failure` policy in `kronograf.yml` (e.g., records nulls) and continues.",
         "Given I run the tool with `--dry-run`, When it executes, Then it prints the list of commits it would process without actually running any builds."
       ]
+    },
+    {
+      "priority": "P0",
+      "acceptance_criteria": [
+        "Given a pull request number that has CI checks running or completed, When the `gh_pr_checks` tool is called with that number, Then the tool returns a summary of the CI checks, including their individual pass/fail status."
+      ],
+      "user_story": "As the Scrum Master, I need a tool that shows the pass/fail status of CI checks on a pull request, so that I can verify our \"Definition of Done\" and unblock the code review and merge process.",
+      "dependencies": "This is now the highest priority item and blocks the merging of EPIC-1.",
+      "id": "TASK-8",
+      "value_hypothesis": "Implementing this tool will remove a critical impediment, allowing Sprint 1 to proceed and enforcing our agreed-upon quality standards. This upholds the integrity of our development process.",
+      "title": "Create `gh_pr_checks` Tool for Scrum Master"
     }
   ],
   "definition_of_done": [
@@ -175,9 +186,41 @@
         "Risk: Programmatic Git authentication can be complex. We need to ensure our solution is secure and works reliably in various CI environments.",
         "Risk: A potential for race conditions exists if two CI pipelines for the same project run concurrently. We will need to implement a simple fetch/rebase/push loop with retries to handle this gracefully."
       ]
+    },
+    {
+      "title": "TASK-8",
+      "risks_assumptions": [
+        "Assumption: The `gh` CLI is installed and authenticated in the execution environment where the agent operates.",
+        "Assumption: The output format of `gh pr checks` is human-readable and sufficient for the Scrum Master's needs."
+      ],
+      "tasks": [
+        "[ ] Define the function signature for `gh_pr_checks(pr_number: int)`.",
+        "[ ] Implement the function to call the `gh pr checks` subcommand via the system shell.",
+        "[ ] Expose the newly created tool to the `ScrumMaster` agent.",
+        "[ ] Notify the Scrum Master that the tool is ready for use."
+      ],
+      "approach": "The implementation for this tool is straightforward. I will define a new tool function, `gh_pr_checks`, that takes a `pr_number` as an argument. This function will execute the corresponding GitHub CLI command: `gh pr checks <pr_number>`. The standard output of this command, which contains the detailed check status, will be returned to the caller. The tool will be made available to the Scrum Master agent.",
+      "estimate": 1000,
+      "test_approach": "The tool will be tested immediately by the Scrum Master by invoking it against the existing Pull Request #1. The expected outcome is a clear list of CI checks and their pass/fail status.",
+      "dod_checks": [
+        "The `gh_pr_checks` tool is available to the Scrum Master agent.",
+        "The tool successfully returns the CI status for a valid pull request number.",
+        "The impediment logged by the Scrum Master can be resolved."
+      ]
     }
   ],
-  "impediment_log": [],
+  "impediment_log": [
+    {
+      "description": "The Scrum Master cannot verify the pass/fail status of CI checks on pull requests. This is required to confirm the 'CI build is green' clause in our Definition of Done and is currently blocking the review and merge of PR #1.",
+      "owner": "ScrumMaster",
+      "status": "open"
+    },
+    {
+      "description": "The CI workflow defined in .github/workflows/ci.yml is not being triggered on Pull Request #1. This blocks the team from getting feedback on tests and code style, and prevents the 'CI build is green' DoD check from being met.",
+      "owner": "DevTeam",
+      "status": "open"
+    }
+  ],
   "retro_actions": [],
   "decision_log": [
     {
@@ -209,6 +252,7 @@
   "token_usage": null,
   "story_estimates": {
     "EPIC-1": 25000,
-    "EPIC-2": 20000
+    "EPIC-2": 20000,
+    "TASK-8": 1000
   }
 }

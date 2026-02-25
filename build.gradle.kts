@@ -3,10 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.9.22" apply false
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0" apply false
 }
 
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     repositories {
         mavenCentral()
@@ -27,5 +29,9 @@ subprojects {
 
     tasks.withType<Test> {
         useJUnitPlatform()
+    }
+
+    ktlint {
+        version.set("1.2.1")
     }
 }
