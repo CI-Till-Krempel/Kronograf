@@ -1,0 +1,14 @@
+
+plugin:
+  id: test-plugin
+  name: "Test Plugin"
+  description: "A sample plugin for testing the loader."
+  version: "1.0.0"
+  maintainer: "test"
+  tags: [test, sample]
+  metrics:
+    - id: test_metric
+      name: "Test Metric"
+      unit: "count"
+      description: "A sample metric."
+      sources: []
