@@ -2,6 +2,10 @@
 package com.kronograf.core.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 
 /**
@@ -44,9 +48,6 @@ sealed class Source {
         val pathPatterns: List<String> = emptyList(),
         val aggregate: String
     ) : Source()
-    
-    // Add other structured report types as they are implemented
-    // e.g., JacocoXml, AndroidLintXml, etc.
 }
 
 /**
@@ -75,14 +76,20 @@ data class SampleLine(
     val expectedValue: Number? = null
 )
 
-// TODO: Implement a custom deserializer to handle `expected_value` which can be a number or string
-// For now, this class is a placeholder.
-class NumberOrStringDeserializer : com.fasterxml.jackson.databind.JsonDeserializer<Number>() {
-    override fun deserialize(p: com.fasterxml.jackson.core.JsonParser, ctxt: com.fasterxml.jackson.databind.DeserializationContext): Number? {
-        return try {
-            p.decimalValue
-        } catch (e: Exception) {
-            null
+/**
+ * Custom Jackson deserializer for a field that can be any numeric type.
+ * It handles integers and floating-point numbers from YAML.
+ */
+class NumberOrStringDeserializer : JsonDeserializer<Number>() {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Number? {
+        val node: JsonNode = p.codec.readTree(p)
+        return when {
+            node.isDouble -> node.asDouble()
+            node.isInt -> node.asInt()
+            node.isLong -> node.asLong()
+            node.isFloat -> node.asDouble() // Treat float as double
+            node.isTextual -> node.asText().toDoubleOrNull()
+            else -> null
         }
     }
 }
