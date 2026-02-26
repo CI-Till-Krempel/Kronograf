@@ -1,6 +1,7 @@
 package com.kronograf.core.plugin
 
 import com.vdurmont.semver4j.Requirement
+import com.vdurmont.semver4j.Semver
 import java.lang.IllegalStateException
 
 data class Rule(
@@ -23,13 +24,11 @@ class RuleResolver {
     fun resolve(rules: List<Rule>, version: String?): Rule? {
         val matchingRules = rules.filter { rule ->
             version?.let { v ->
-                // Use Requirement.build to handle version ranges like ">=1.0.0 <2.0.0" or "1.x"
                 try {
                     val requirement = Requirement.build(rule.version)
-                    requirement.isSatisfiedBy(v)
+                    // Correctly create a Semver object before checking satisfaction
+                    requirement.isSatisfiedBy(Semver(v))
                 } catch (e: Exception) {
-                    // Handle cases where rule.version might be malformed.
-                    // For this logic, we'll consider malformed ranges as non-matching.
                     false
                 }
             } ?: (rule.version == "*")
