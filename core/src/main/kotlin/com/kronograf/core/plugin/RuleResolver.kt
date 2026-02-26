@@ -1,47 +1,42 @@
-
 package com.kronograf.core.plugin
 
-import com.kronograf.core.model.Rule
-import com.vdurmont.semver4j.Semver
+import com.vdurmont.semver4j.Requirement
+import java.lang.IllegalStateException
 
-/**
- * Resolves which rule to apply based on detected tool versions.
- */
+data class Rule(
+    val id: String,
+    val version: String, // semver range
+    val description: String,
+    val pluginId: String
+)
+
 class RuleResolver {
 
     /**
-     * Selects the single best matching rule from a list for a given tool.
-     * The "best" rule is the one whose version range matches the detected version,
-     * or a fallback rule with a wildcard version range if no version was detected.
+     * Resolves the best matching rule from a list of rules for a given version.
      *
-     * @param rules A list of rules for a single metric from a plugin.
-     * @param detectedVersions A map of tool ID to its detected semantic version.
-     * @return The matching [Rule], or null if no rule matches.
-     * @throws IllegalStateException if multiple rules match the same tool version.
+     * @param rules The list of rules to select from.
+     * @param version The version to match against the rule's semver range. Can be null.
+     * @return The best matching rule, or null if no rule matches.
+     * @throws IllegalStateException if multiple rules match the given version.
      */
-    fun resolve(rules: List<Rule>, detectedVersions: Map<String, Semver>): Rule? {
+    fun resolve(rules: List<Rule>, version: String?): Rule? {
         val matchingRules = rules.filter { rule ->
-            val toolVersion = detectedVersions[rule.tool]
-
-            // Handle the wildcard case separately as semver4j does not support it directly.
-            if (rule.versionRange == "*") {
-                return@filter true
-            }
-
-            if (toolVersion != null) {
-                // Version was detected, so check if it satisfies the range.
-                toolVersion.satisfies(rule.versionRange)
-            } else {
-                // No version was detected for this rule's tool and it's not a wildcard.
-                false
-            }
+            version?.let { v ->
+                // Use Requirement.build to handle version ranges like ">=1.0.0 <2.0.0" or "1.x"
+                try {
+                    val requirement = Requirement.build(rule.version)
+                    requirement.isSatisfiedBy(v)
+                } catch (e: Exception) {
+                    // Handle cases where rule.version might be malformed.
+                    // For this logic, we'll consider malformed ranges as non-matching.
+                    false
+                }
+            } ?: (rule.version == "*")
         }
 
         if (matchingRules.size > 1) {
-            val ruleIds = matchingRules.joinToString(", ") { it.id }
-            throw IllegalStateException(
-                "Multiple rules ($ruleIds) match the detected versions. Please check plugin for overlapping version_range."
-            )
+            throw IllegalStateException("Multiple rules found for version '$version'.")
         }
 
         return matchingRules.firstOrNull()

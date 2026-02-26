@@ -1,46 +1,49 @@
-
 package com.kronograf.core.parser
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.kronograf.core.model.Source
+import org.w3c.dom.Element
 import java.io.File
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty
+import javax.xml.parsers.DocumentBuilderFactory
 
-/**
- * Parses JUnit XML reports to extract test metrics.
- */
 class JUnitXmlParser {
 
-    private val xmlMapper = XmlMapper().registerKotlinModule()
+    /**
+     * Parses a list of JUnit XML files and returns a summary of the test results.
+     *
+     * @param files The list of XML files to parse.
+     * @return A map containing the aggregated test metrics (tests, failures, errors, skipped).
+     */
+    fun parse(files: List<File>): Map<String, Double> {
+        val factory = DocumentBuilderFactory.newInstance()
+        val builder = factory.newDocumentBuilder()
 
-    fun parse(files: List<File>, config: Source.JUnitXml): Double? {
-        val testSuites = files.mapNotNull {
+        var totalTests = 0.0
+        var totalFailures = 0.0
+        var totalErrors = 0.0
+        var totalSkipped = 0.0
+
+        for (file in files) {
             try {
-                xmlMapper.readValue(it, TestSuite::class.java)
+                val doc = builder.parse(file)
+                val testsuites = doc.getElementsByTagName("testsuite")
+
+                for (i in 0 until testsuites.length) {
+                    val testsuite = testsuites.item(i) as Element
+                    totalTests += testsuite.getAttribute("tests").toDoubleOrNull() ?: 0.0
+                    totalFailures += testsuite.getAttribute("failures").toDoubleOrNull() ?: 0.0
+                    totalErrors += testsuite.getAttribute("errors").toDoubleOrNull() ?: 0.0
+                    totalSkipped += testsuite.getAttribute("skipped").toDoubleOrNull() ?: 0.0
+                }
             } catch (e: Exception) {
-                null
+                // Ignore files that are not valid XML or do not conform to the expected structure.
+                println("Could not parse file: ${file.path}. Error: ${e.message}")
             }
         }
 
-        return when (config.aggregate) {
-            "sum_tests" -> testSuites.sumOf { it.tests }.toDouble()
-            else -> throw IllegalArgumentException("Unknown aggregate mode for JUnitXml: ${config.aggregate}")
-        }
+        return mapOf(
+            "tests" to totalTests,
+            "failures" to totalFailures,
+            "errors" to totalErrors,
+            "skipped" to totalSkipped
+        )
     }
 }
-
-@JsonIgnoreProperties(ignoreUnknown = true)
-data class TestSuite(
-    @field:JacksonXmlProperty(isAttribute = true)
-    val name: String = "",
-    @field:JacksonXmlProperty(isAttribute = true)
-    val tests: Int = 0,
-    @field:JacksonXmlProperty(isAttribute = true)
-    val failures: Int = 0,
-    @field:JacksonXmlProperty(isAttribute = true)
-    val errors: Int = 0,
-    @field:JacksonXmlProperty(isAttribute = true)
-    val skipped: Int = 0
-)

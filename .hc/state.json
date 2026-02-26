@@ -207,6 +207,33 @@
         "The tool successfully returns the CI status for a valid pull request number.",
         "The impediment logged by the Scrum Master can be resolved."
       ]
+    },
+    {
+      "title": "Fix failing unit tests in core module",
+      "risks": [
+        "I assume I have the necessary permissions to create a branch and push code to the repository.",
+        "The `semver4j` library's API for handling version ranges is straightforward and available.",
+        "The JUnit XML parsing issue is a logical error and not due to a malformed test file that I can't fix."
+      ],
+      "tasks": [
+        "Create a new branch `fix/core-unit-tests`.",
+        "Modify `RuleResolver.kt` to correctly parse semantic version ranges.",
+        "Fix the test count aggregation logic in `JUnitXmlParser.kt`.",
+        "Run `./gradlew :core:test` locally to ensure all tests pass.",
+        "Push the branch and create a Pull Request.",
+        "Verify that CI checks are passing on the PR."
+      ],
+      "dod_checks": [
+        "Implementation Plan created (this comment).",
+        "Code implemented and pushed.",
+        "Unit tests passing.",
+        "PR created and linked.",
+        "CI checks passing.",
+        "PR approved."
+      ],
+      "approach": "The failures are concentrated in two files: `JUnitXmlParserTest` and `RuleResolverTest`.\n1.  **`RuleResolver` fix**: All failures in `RuleResolverTest` point to a `SemverException`. The stack traces indicate that version *ranges* (e.g., `>=1.0.0 <2.0.0`) are being passed to the `Semver` constructor, which expects a single, concrete version. I will modify `RuleResolver.kt` to use the correct `semver4j` API for parsing version requirements/ranges, likely `Requirement.build()`.\n2.  **`JUnitXmlParser` fix**: The failures in `JUnitXmlParserTest` show that the parser is returning `0.0` instead of the expected sum of tests. This suggests an issue in the XML parsing or data aggregation logic. I will debug the parser to identify and correct the logic for summing the `tests` attribute from `testsuite` elements.",
+      "estimate": 5000,
+      "test_approach": "The primary validation will be running the existing unit tests in the `core` module. Success is defined as all 17 tests passing."
     }
   ],
   "impediment_log": [
@@ -287,10 +314,11 @@
   ],
   "sprint_report": "# Sprint Review Report\n\n## Summary\nSprint 1 was concluded prematurely due to persistent CI/CD failures that blocked the completion of EPIC-1. While all code for the epic was written, it did not meet the Definition of Done as the build could not be stabilized. The sprint consumed its entire token budget on development and debugging efforts. The primary outcome was not a shippable increment, but rather the identification of a critical process flaw and a concrete action item to improve CI diagnostics for future sprints.\n\n## Accomplishments\n- Functionally implemented the core Plugin Engine (EPIC-1), including YAML parsing, version detection, rule resolution, and parsers for both log scraping and JUnit XML.\n- Established a CI/CD pipeline on GitHub Actions that provides automated feedback on builds, tests, and code style.\n- Identified and resolved several complex build and environment issues, leading to a crucial retrospective action to improve debugging capabilities.\n- Created a comprehensive Product Backlog and a clear implementation plan for the v1.0 release.\n\n## Token Usage\n- Total: 30000\n  - DevTeam: 30000\n\n## Retrospective Actions (including efficiency improvements)\n- Implement a 'debug CI' workflow that allows the DevTeam to SSH into the GitHub Actions runner environment. This will provide direct, interactive access to investigate complex build failures in real-time. (Owner: DevTeam, Status: open)\n\n## Story Estimates (Tokens)\n- EPIC-1: 25000\n- EPIC-2: 20000\n- TASK-8: 1000\n",
   "budgets": {
-    "total": 500000,
+    "total": 250000,
     "agents": {
       "DevTeam": 50000
-    }
+    },
+    "total_usd": 0.5
   },
   "token_usage": {
     "total": 30000,
@@ -301,6 +329,7 @@
   "story_estimates": {
     "EPIC-1": 25000,
     "EPIC-2": 20000,
-    "TASK-8": 1000
+    "TASK-8": 1000,
+    "Fix failing unit tests in core module": 5000
   }
 }
