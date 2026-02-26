@@ -236,6 +236,11 @@
       "status": "open"
     },
     {
+      "description": "The Scrum Master agent lacks a 'sleep' or 'wait' tool, preventing it from effectively monitoring long-running asynchronous jobs like CI/CD pipelines. This leads to incorrect 'hanging build' diagnoses and inefficient, rapid polling.",
+      "owner": "ScrumMaster",
+      "status": "open"
+    },
+    {
       "description": "The CI job for PR #3 is stuck 'in progress' and is not completing. This is preventing the team from getting a final pass/fail signal, blocking the merge of the build system fix and the start of Sprint 2.",
       "owner": "ScrumMaster",
       "status": "open"
