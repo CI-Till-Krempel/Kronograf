@@ -19,26 +19,24 @@ Tip: If you prefer standard checkboxes only, use the Kanban tables below and kee
 
 ## Release plan (versions → stories)
 
-### v0.1 — MVP (target: YYYY-MM)
+### v0.1 — MVP (target: 2026-03)
 Goals
-- Short goal statement for the release
+- Foundational data pipeline, core engine, and essential toolset for Kronograf MVP.
 
 Stories
-- [ ] [ST-001] Your first story title
-- [ ] [ST-002] Your second story title
-- [ ] [ST-003] Another story title
-
-### v0.2 — Next iteration (target: YYYY-MM)
-Goals
-- Short goal statement for the release
-
-Stories
-- [ ] [ST-010] Some enhancement
-- [ ] [ST-011] Another enhancement
+- [~] [EPIC-1] Implement the core Plugin Engine
+- [~] [EPIC-2] Implement Git-based Data Store
+- [ ] [EPIC-3] Build the Android/Kotlin/Gradle Reference Plugin
+- [ ] [EPIC-4] Create Static SVG Chart Generator
+- [ ] [EPIC-5] Create Plugin Author CLI
+- [ ] [EPIC-6] Create GitHub Actions Integration
+- [ ] [EPIC-7] Build Historical Backfill Tool
+- [~] [TASK-8] Create `gh_pr_checks` Tool for Scrum Master
 
 ### Backlog (unplanned)
-- [ ] [ST-100] Future idea
-- [ ] [ST-101] Another idea
+- [~] [US-XXXX] User Authentication
+- [~] [US-XXXX] Project Creation and Management
+- [~] [US-XXXX] Task Management within Projects
 
 ---
 
