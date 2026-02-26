@@ -26,9 +26,9 @@ class RuleResolver {
             version?.let { v ->
                 try {
                     val requirement = Requirement.build(rule.version)
-                    // The version 'v' might not be a strict semver string (e.g., 'latest'),
-                    // so we need to handle potential exceptions during Semver object creation.
-                    val semver = Semver(v, Semver.SemverType.NPM)
+                    // Correctly create a Semver object before checking satisfaction.
+                    // Use a lenient type like NPM to handle a wider range of version formats if necessary.
+                    val semver = Semver(v, Semver.SemverType.NPM) 
                     requirement.isSatisfiedBy(semver)
                 } catch (e: Exception) {
                     // If 'v' is not a valid semver string, it cannot satisfy a version requirement.
