@@ -15,7 +15,8 @@
         "Given a rule with a `log_scrape` source, When the engine processes a log file, Then it correctly applies the regex pattern and `aggregate` mode (e.g., `count_matches`, `extract_first`) to produce the expected metric value.",
         "Given a rule with a structured report source (e.g., `junit_xml`), When the engine is pointed at a directory of report files, Then it correctly parses the files and aggregates the metric value as specified."
       ],
-      "value_hypothesis": "A robust and testable plugin engine is the foundation of Kronograf. Getting this right will enable rapid, parallel development of support for new tech stacks and is the highest-value component for validating the core product concept."
+      "value_hypothesis": "A robust and testable plugin engine is the foundation of Kronograf. Getting this right will enable rapid, parallel development of support for new tech stacks and is the highest-value component for validating the core product concept.",
+      "status": "In Progress"
     },
     {
       "title": "Implement Git-based Data Store",
@@ -29,7 +30,8 @@
       ],
       "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
       "dependencies": "EPIC-1 (Plugin Engine to generate data)",
-      "priority": "P0"
+      "priority": "P0",
+      "status": "In Progress"
     },
     {
       "value_hypothesis": "Delivering a high-quality, comprehensive reference plugin demonstrates the power and flexibility of the plugin engine and provides immediate value to a large user base (Android developers).",
@@ -45,7 +47,8 @@
         "Given the same project, When the plugin is active, Then it successfully extracts `lint_errors` and `lint_warnings` from `android_lint_xml` reports.",
         "Given the same project, When the plugin is active, Then it successfully extracts CVE counts (critical, high, medium) from `owasp_xml` reports.",
         "Given the same project, When the plugin is active, Then it successfully extracts `detekt_issues` by scraping the build log."
-      ]
+      ],
+      "status": "Ready"
     },
     {
       "title": "Create Static SVG Chart Generator",
@@ -60,7 +63,8 @@
       ],
       "user_story": "As an Engineering Lead, I want the system to generate time-series SVG charts from the stored metric data, so that I can embed them in my `README.md` to visualize quality trends.",
       "dependencies": "EPIC-2",
-      "priority": "P1"
+      "priority": "P1",
+      "status": "Ready"
     },
     {
       "value_hypothesis": "A strong local development and testing story for plugins is crucial for building a community and enabling the \"no-code\" extensibility promised in the vision. This CLI is key to that experience.",
@@ -75,7 +79,8 @@
         "Given a plugin file and a real build log, When I run `kronograf plugin test <plugin_file> --log <log_file>`, Then the command runs all configured rules against the log and reports the extracted values.",
         "Given a project with a `kronograf.yml` file, When I run `kronograf plugin list`, Then the command lists all plugins activated for the project.",
         "Given a build log and a plugin, When I run `kronograf plugin dry-run --log <log_file> --plugin <plugin_id>`, Then the output shows exactly which rules from the plugin matched lines in the log and what values were extracted."
-      ]
+      ],
+      "status": "Ready"
     },
     {
       "title": "Create GitHub Actions Integration",
@@ -89,7 +94,8 @@
       ],
       "user_story": "As a DevOps Engineer on GitHub, I want a native GitHub Action to run Kronograf, so that I can easily integrate KPI extraction and chart generation into my existing CI/CD workflow with just a few lines of YAML.",
       "dependencies": "EPIC-1, EPIC-2, EPIC-4",
-      "priority": "P1"
+      "priority": "P1",
+      "status": "Ready"
     },
     {
       "value_hypothesis": "The backfill tool solves the \"empty chart\" problem for existing projects, turning Kronograf from a \"nice tool for the future\" into an \"insightful tool today.\" This is a killer feature for driving adoption in established teams.",
@@ -104,7 +110,8 @@
         "Given a backfill operation is interrupted, When I re-run the `kronograf backfill` command, Then the tool automatically skips commits that already have data points and resumes from where it left off.",
         "Given a historical commit fails to build, When the tool processes it, Then it handles the failure according to the `on_build_failure` policy in `kronograf.yml` (e.g., records nulls) and continues.",
         "Given I run the tool with `--dry-run`, When it executes, Then it prints the list of commits it would process without actually running any builds."
-      ]
+      ],
+      "status": "Ready"
     },
     {
       "priority": "P0",
@@ -115,14 +122,21 @@
       "dependencies": "This is now the highest priority item and blocks the merging of EPIC-1.",
       "id": "TASK-8",
       "value_hypothesis": "Implementing this tool will remove a critical impediment, allowing Sprint 1 to proceed and enforcing our agreed-upon quality standards. This upholds the integrity of our development process.",
-      "title": "Create `gh_pr_checks` Tool for Scrum Master"
+      "title": "Create `gh_pr_checks` Tool for Scrum Master",
+      "status": "In Progress"
     },
     {
       "value_hypothesis": "Users can securely access the system, which is a prerequisite for any further value delivery. We will know it worked if users can successfully create accounts and log in.",
-      "priority": "P0",
-      "user_story": "As a user, I want to securely log in to the application, so that I can access my project data.",
-      "acceptance_criteria": "- Given a user is not logged in, when they visit the app, they are prompted to log in or sign up.\n- Given a new user signs up, when they submit their credentials, a new user account is created.\n- Given an existing user provides correct credentials, when they log in, they are granted access to the application.",
-      "title": "User Authentication"
+      "priority": "P2",
+      "user_story": "As a team member, I want to manage tasks within a project, so that I can track my work and collaborate with my team.",
+      "acceptance_criteria": [
+        "Given a user has created a project, when they view the project, they can add tasks with descriptions and due dates.",
+        "Given a task has been created, when a user marks it as complete, the task's status is updated.",
+        "Given a user is viewing a project, when they filter by task status, they can see a list of all complete or incomplete tasks."
+      ],
+      "title": "Task Management within Projects",
+      "id": "US-XXXX",
+      "status": "In Progress"
     },
     {
       "user_story": "As a project manager, I want to create and manage projects, so that I can organize my team's work.",
@@ -137,6 +151,17 @@
       "user_story": "As a team member, I want to manage tasks within a project, so that I can track my work and collaborate with my team.",
       "acceptance_criteria": "- Given a user has created a project, when they view the project, they can add tasks with descriptions and due dates.\n- Given a task has been created, when a user marks it as complete, the task's status is updated.\n- Given a user is viewing a project, when they filter by task status, they can see a list of all complete or incomplete tasks.",
       "title": "Task Management within Projects"
+    },
+    {
+      "value_hypothesis": "Users will be able to create and see their projects, validating the core value proposition of organizing work. We'll measure success by the number of projects created.",
+      "title": "User can create a new project",
+      "id": "PROJ-1",
+      "acceptance_criteria": [
+        "Given I am on the project dashboard, When I click the 'New Project' button, Then I should see a form to enter the project details (name, description).",
+        "Given I have filled out the new project form, When I click 'Save', Then the new project should appear in my list of projects."
+      ],
+      "user_story": "As a user, I want to create a new project with a name and description so that I can start organizing my work.",
+      "priority": "P0"
     }
   ],
   "definition_of_done": [
@@ -257,7 +282,7 @@
       "test_approach": "The primary validation will be running the existing unit tests in the `core` module. Success is defined as all 17 tests passing."
     },
     {
-      "title": "User Authentication",
+      "title": "Task Management within Projects",
       "test_approach": "Unit tests will cover the authentication logic in the `UserService`. Integration tests will validate the full registration and login flows through the API endpoints. Manual QA will be performed on the frontend forms to ensure they meet all acceptance criteria.",
       "risks": [
         "Security vulnerabilities if custom authentication logic is implemented; mitigated by using a standard, well-vetted library.",
@@ -282,6 +307,15 @@
         "Implement client-side logic for session/token management.",
         "Write unit tests for the `UserService`.",
         "Write integration tests for the API endpoints."
+      ],
+      "id": "US-XXXX",
+      "status": "In Progress",
+      "priority": "P2",
+      "user_story": "As a team member, I want to manage tasks within a project, so that I can track my work and collaborate with my team.",
+      "acceptance_criteria": [
+        "Given a user has created a project, when they view the project, they can add tasks with descriptions and due dates.",
+        "Given a task has been created, when a user marks it as complete, the task's status is updated.",
+        "Given a user is viewing a project, when they filter by task status, they can see a list of all complete or incomplete tasks."
       ]
     },
     {
@@ -336,6 +370,99 @@
         "The complexity of task filtering and sorting could be underestimated. We will start with simple status-based filtering as defined in the acceptance criteria.",
         "Performance issues could arise if a project has a very large number of tasks. We will consider pagination in the API design from the start."
       ]
+    },
+    {
+      "id": "EPIC-2",
+      "title": "Implement Git-based Data Store",
+      "status": "In Progress",
+      "priority": "P0",
+      "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
+      "acceptance_criteria": [
+        "Given the KPI extractor has produced a JSON data point for a commit, When the data store stage is executed, Then the system checks out the configured data branch (e.g., `kronograf-data`), creating it if it doesn't exist.",
+        "Given a new JSON data point, When the data store stage runs, Then the JSON data point is appended as a new line to the `metrics.ndjson` file in the data branch.",
+        "Given the `metrics.ndjson` file has been updated, When the data store stage completes, Then the changes are committed and pushed back to the remote repository using a dedicated CI token.",
+        "Given the extractor runs for a commit that already has a data point in `metrics.ndjson`, When the data store stage is executed, Then it does not write a duplicate entry."
+      ]
+    },
+    {
+      "id": "EPIC-1",
+      "title": "Implement the core Plugin Engine",
+      "status": "In Progress",
+      "priority": "P0",
+      "user_story": "As a Plugin Author, I want a core engine that can load YAML plugin files, detect tool versions from logs, and apply the correct versioned rules, so that I can define and test KPI extraction logic for any build tool.",
+      "acceptance_criteria": [
+        "Given a valid `kronograf.yml` file and a set of plugin YAML files, When the engine is invoked, Then it correctly loads and parses all plugin definitions.",
+        "Given a build log file containing a tool version string (e.g., \"Gradle 8.9\"), When the engine runs version detection, Then it correctly identifies the tool and its semantic version.",
+        "Given a plugin with multiple versioned rules for a metric, When the engine processes a log file with a detected tool version, Then it selects and applies only the rule whose `version_range` matches the detected version.",
+        "Given a rule with a `log_scrape` source, When the engine processes a log file, Then it correctly applies the regex pattern and `aggregate` mode (e.g., `count_matches`, `extract_first`) to produce the expected metric value.",
+        "Given a rule with a structured report source (e.g., `junit_xml`), When the engine is pointed at a directory of report files, Then it correctly parses the files and aggregates the metric value as specified."
+      ]
+    },
+    {
+      "id": "TASK-8",
+      "title": "Create `gh_pr_checks` Tool for Scrum Master",
+      "status": "In Progress",
+      "priority": "P0",
+      "acceptance_criteria": [
+        "Given a pull request number that has CI checks running or completed, When the `gh_pr_checks` tool is called with that number, Then the tool returns a summary of the CI checks, including their individual pass/fail status."
+      ]
+    },
+    {
+      "title": "PROJ-1",
+      "dod_checks": [
+        "Code is peer-reviewed and merged to main.",
+        "Unit tests for backend endpoints are written and passing (100% coverage).",
+        "A basic end-to-end test for the user flow is implemented and passing.",
+        "All acceptance criteria are met.",
+        "The application is runnable.",
+        "API documentation is created or updated."
+      ],
+      "estimate": 3500,
+      "test_approach": "Unit tests will be written for the backend API endpoints to ensure they correctly handle project creation and listing. A single, simple end-to-end test will be created (e.g., using Playwright) to simulate the full user flow: loading the page, submitting the new project form, and verifying that the new project appears in the list.",
+      "approach": "We will create a simple web application with a backend API and a frontend UI. The backend will use a Python web framework (like Flask or FastAPI) to provide RESTful endpoints for managing projects. For this initial sprint, we'll use a simple in-memory list to store the projects, deferring the need for a persistent database. The frontend will be a single HTML page with vanilla JavaScript to interact with the API for creating and listing projects.",
+      "tasks": [
+        "[ ] Define the `Project` data model (ID, name, description).",
+        "[ ] Set up a basic Python web server (e.g., FastAPI).",
+        "[ ] Implement an in-memory list to act as the database for projects.",
+        "[ ] Create the `POST /api/projects` endpoint to add a new project.",
+        "[ ] Create the `GET /api/projects` endpoint to list all existing projects.",
+        "[ ] Write unit tests for both API endpoints.",
+        "[ ] Create a basic `index.html` file for the user interface.",
+        "[ ] Add a form to `index.html` for submitting a new project's name and description.",
+        "[ ] Write JavaScript to handle the form submission, call the POST API, and then refresh the project list.",
+        "[ ] Write JavaScript to fetch the project list from the GET API on page load and display it."
+      ],
+      "risks": [
+        "Using an in-memory data store means all projects will be lost on server restart. This is acceptable for the first sprint but is a major limitation.",
+        "The choice of web framework and frontend libraries is not yet finalized. Sticking to vanilla JS and a minimal backend framework mitigates this risk for now."
+      ]
+    },
+    {
+      "title": "STO-1",
+      "tasks": [
+        "Create a feature branch for STO-1.",
+        "Set up the basic Flask application structure.",
+        "Implement a simple data access layer to read/write user data from a file.",
+        "Create the /register endpoint and a basic HTML form.",
+        "Implement password hashing.",
+        "Write unit tests for the registration logic.",
+        "Create a Pull Request for review."
+      ],
+      "estimate": 15000,
+      "test_approach": "Unit tests will be created to verify the registration endpoint. These tests will cover successful account creation, attempts to register with an existing email, and validation failures (e.g., weak password).",
+      "approach": "I will create a core Flask application that handles user registration. To keep the initial setup simple, user data will be stored in a local file (e.g., JSON), deferring database integration. The registration endpoint will validate the user's email, enforce a basic password policy, hash the password for security, and store the new user account.",
+      "dod_checks": [
+        "feature_complete: Yes",
+        "tests_passing: Yes",
+        "code_reviewed: To be done",
+        "pr_approved: To be done",
+        "merged_main: To be done",
+        "deployed_staging: Not applicable"
+      ],
+      "risks_assumptions": [
+        "Assumption: A file-based user store is sufficient for this initial story.",
+        "Assumption: The \"confirmation email\" requirement can be fulfilled by logging the action to the console, as a full email service is not yet in scope."
+      ]
     }
   ],
   "impediment_log": [
@@ -388,6 +515,11 @@
       "description": "Systemic CI Failure Blocking All Progress. The team is unable to merge a validated code fix due to a persistent, unidentified issue in the CI pipeline or repository state. This has halted all forward progress and is impacting team morale and the sprint budget.",
       "owner": "ScrumMaster",
       "status": "open"
+    },
+    {
+      "description": "The 'git' command is not found in the environment, which prevents pushing code to the repository. This blocks all development work. The system may be missing a git installation or it is not in the system's PATH.",
+      "owner": "ScrumMaster",
+      "status": "open"
     }
   ],
   "retro_actions": [
@@ -428,6 +560,12 @@
       "decision": "Recommended a code correction for a `TypeMismatch` error in `RuleResolver.kt` and advised the `DevTeam` to perform a fresh clone and force-push to resolve a suspected local Git state issue that was blocking CI.",
       "rationale": "The DevTeam was blocked by a recurring CI compilation failure despite multiple attempts to fix it. The logs showed a consistent type error. The failure of the fix to be reflected in the build suggested a process or environment problem. My decision provides a definitive code solution and a procedural step (fresh clone) to mitigate the environmental risk, unblocking the team and preventing further wasted effort.",
       "owner": "Architect"
+    },
+    {
+      "title": "Set First Sprint Goal",
+      "decision": "Set the first sprint goal to \"Enable users to manage their projects by creating and viewing them in a central location.\"",
+      "rationale": "To deliver value quickly, the first sprint should focus on the foundational capability of creating and seeing projects, which is core to a project management tool. This provides a tangible starting point for users and the development team.",
+      "owner": "ProductOwner"
     }
   ],
   "sprint_report": "# Sprint Review Report\n\n## Summary\nSprint 1 was concluded prematurely due to persistent CI/CD failures that blocked the completion of EPIC-1. While all code for the epic was written, it did not meet the Definition of Done as the build could not be stabilized. The sprint consumed its entire token budget on development and debugging efforts. The primary outcome was not a shippable increment, but rather the identification of a critical process flaw and a concrete action item to improve CI diagnostics for future sprints.\n\n## Accomplishments\n- Functionally implemented the core Plugin Engine (EPIC-1), including YAML parsing, version detection, rule resolution, and parsers for both log scraping and JUnit XML.\n- Established a CI/CD pipeline on GitHub Actions that provides automated feedback on builds, tests, and code style.\n- Identified and resolved several complex build and environment issues, leading to a crucial retrospective action to improve debugging capabilities.\n- Created a comprehensive Product Backlog and a clear implementation plan for the v1.0 release.\n\n## Token Usage\n- Total: 30000\n  - DevTeam: 30000\n\n## Retrospective Actions (including efficiency improvements)\n- Implement a 'debug CI' workflow that allows the DevTeam to SSH into the GitHub Actions runner environment. This will provide direct, interactive access to investigate complex build failures in real-time. (Owner: DevTeam, Status: open)\n\n## Story Estimates (Tokens)\n- EPIC-1: 25000\n- EPIC-2: 20000\n- TASK-8: 1000\n",
@@ -439,11 +577,11 @@
     "total_usd": 0.5
   },
   "token_usage": {
-    "total": 108548,
+    "total": 195012,
     "agents": {
-      "DevTeam": 58591,
-      "ScrumOrchestrator": 29184,
-      "ProductOwner": 20773
+      "ScrumOrchestrator": 49908,
+      "DevTeam": 117947,
+      "ProductOwner": 27157
     }
   },
   "story_estimates": {
@@ -453,6 +591,8 @@
     "Fix failing unit tests in core module": 5000,
     "User Authentication": 9000,
     "Project Creation and Management": 7500,
-    "Task Management within Projects": 8000
+    "Task Management within Projects": 8000,
+    "PROJ-1": 3500,
+    "STO-1": 15000
   }
 }

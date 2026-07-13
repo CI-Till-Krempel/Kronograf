@@ -34,9 +34,6 @@ Stories
 - [~] [TASK-8] Create `gh_pr_checks` Tool for Scrum Master
 
 ### Backlog (unplanned)
-- [~] [US-XXXX] User Authentication
-- [~] [US-XXXX] Project Creation and Management
-- [~] [US-XXXX] Task Management within Projects
 
 ---
 
