@@ -1,6 +1,9 @@
 # Project Documentation
 
-This repository maintains living documentation alongside code. Use the following folders:
+This directory contains templates for the specs to be used in the state repository. Do not change the files here. 
+Instead use these templates to create the actual specifications in the project repository in a similar way. 
+
+This repository maintains living documentation alongside code. Use the following folders in your **state repository**:
 
 - specs/requirements — Product-level requirements and specs (PRD/SRS), acceptance criteria, and traceability
 - specs/architecture — Architecture Decision Records (ADRs), diagrams, and system design notes

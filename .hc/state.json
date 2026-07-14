@@ -1,10 +1,11 @@
 {
   "version": "1.0.0",
-  "product_vision": "",
+  "product_vision": "- **Version:** 1.3 - **Status:** Draft - **Date:** February 2026 - **Change from v1.2:** Renamed tool from Repograde to Kronograf throughout. Teams working on long-lived software products often struggle to communicate the state of their codebase's technical health to stakeholders in customer reviews or steering meetings. Kronograf is a lightweight, CI/CD-integrated system that automatically extracts key quality KPIs from build artifacts, tracks them as time-series data across commits and releases, and renders them as embeddable SVG charts — suitable for display directly in a repository's README.md or any web page.",
   "product_goals": [],
   "product_backlog": [
     {
       "id": "EPIC-7",
+      "type": "User Story",
       "title": "Build Historical Backfill Tool",
       "status": "Ready",
       "priority": "P2",
@@ -19,7 +20,8 @@
     },
     {
       "id": "EPIC-2",
-      "title": "Git-Native Data Storage",
+      "type": "User Story",
+      "title": "Implement Git-based Data Store",
       "status": "In Progress",
       "priority": "P0",
       "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
@@ -28,13 +30,12 @@
         "Given a new JSON data point, When the data store stage runs, Then the JSON data point is appended as a new line to the `metrics.ndjson` file in the data branch.",
         "Given the `metrics.ndjson` file has been updated, When the data store stage completes, Then the changes are committed and pushed back to the remote repository using a dedicated CI token.",
         "Given the extractor runs for a commit that already has a data point in `metrics.ndjson`, When the data store stage is executed, Then it does not write a duplicate entry."
-      ],
-      "description": "This epic focuses on the novel approach of using Git itself as the database for storing the extracted KPI data. It involves creating/managing a dedicated data branch, committing data points as structured files (e.g., JSON or YAML), and reading the historical data for rendering.",
-      "type": "Epic"
+      ]
     },
     {
       "id": "EPIC-4",
-      "title": "Pluggable Architecture & YAML Configuration",
+      "type": "User Story",
+      "title": "Create Static SVG Chart Generator",
       "status": "Ready",
       "priority": "P1",
       "user_story": "As an Engineering Lead, I want the system to generate time-series SVG charts from the stored metric data, so that I can embed them in my `README.md` to visualize quality trends.",
@@ -44,12 +45,11 @@
         "Given the configuration specifies a `window_days` of 90, When the chart is generated, Then it only includes data points from the last 90 days.",
         "Given the chart is generated, When committed to the data branch, Then it can be embedded in a Markdown file using a raw git URL and it renders correctly.",
         "Given the SVG file, When inspected, Then it is self-contained, under 15KB, and contains CSS for dark/light mode."
-      ],
-      "description": "This epic focuses on building the core architectural components that make Kronograf flexible and maintainable. It includes the YAML parsing logic, the rule-versioning system, the mechanism for composing and overriding plugins, and the isolated testing framework for plugin rules.",
-      "type": "Epic"
+      ]
     },
     {
       "id": "EPIC-6",
+      "type": "User Story",
       "title": "Create GitHub Actions Integration",
       "status": "Ready",
       "priority": "P1",
@@ -63,7 +63,8 @@
     },
     {
       "id": "EPIC-5",
-      "title": "Production-Ready Android/Gradle Plugin",
+      "type": "User Story",
+      "title": "Create Plugin Author CLI",
       "status": "Ready",
       "priority": "P1",
       "user_story": "As a Plugin Author, I want a set of CLI commands to validate and test my plugin definitions, so that I can confidently develop new plugins for any tech stack without requiring a full CI pipeline.",
@@ -73,222 +74,11 @@
         "Given a plugin file and a real build log, When I run `kronograf plugin test <plugin_file> --log <log_file>`, Then the command runs all configured rules against the log and reports the extracted values.",
         "Given a project with a `kronograf.yml` file, When I run `kronograf plugin list`, Then the command lists all plugins activated for the project.",
         "Given a build log and a plugin, When I run `kronograf plugin dry-run --log <log_file> --plugin <plugin_id>`, Then the output shows exactly which rules from the plugin matched lines in the log and what values were extracted."
-      ],
-      "description": "This epic is dedicated to creating the specific, production-quality plugin for Android and Gradle projects as defined in the PRD. It will serve as the primary, out-of-the-box experience for a large user base and the canonical example for other plugin authors.",
-      "type": "Epic"
-    },
-    {
-      "id": "EPIC-1",
-      "title": "Core KPI Extraction Pipeline",
-      "status": "In Progress",
-      "priority": "P0",
-      "user_story": "As a Plugin Author, I want a core engine that can load YAML plugin files, detect tool versions from logs, and apply the correct versioned rules, so that I can define and test KPI extraction logic for any build tool.",
-      "acceptance_criteria": [
-        "Given a valid `kronograf.yml` file and a set of plugin YAML files, When the engine is invoked, Then it correctly loads and parses all plugin definitions.",
-        "Given a build log file containing a tool version string (e.g., \"Gradle 8.9\"), When the engine runs version detection, Then it correctly identifies the tool and its semantic version.",
-        "Given a plugin with multiple versioned rules for a metric, When the engine processes a log file with a detected tool version, Then it selects and applies only the rule whose `version_range` matches the detected version.",
-        "Given a rule with a `log_scrape` source, When the engine processes a log file, Then it correctly applies the regex pattern and `aggregate` mode (e.g., `count_matches`, `extract_first`) to produce the expected metric value.",
-        "Given a rule with a structured report source (e.g., `junit_xml`), When the engine is pointed at a directory of report files, Then it correctly parses the files and aggregates the metric value as specified."
-      ],
-      "description": "This epic covers the core functionality of reading various build artifacts (logs, XML reports), parsing them according to plugin rules, and extracting the raw KPI data points. It is the foundation of the data collection process.",
-      "type": "Epic"
-    },
-    {
-      "id": "EPIC-3",
-      "title": "SVG Chart Rendering",
-      "status": "Ready",
-      "priority": "P0",
-      "user_story": "As a Plugin Author, I want a complete, production-ready plugin for a popular tech stack (Android/Kotlin/Gradle), so that I have a clear example of how to define various metric source types and aggregation rules.",
-      "acceptance_criteria": [
-        "Given an Android project built with Gradle and Kotlin, When the `android-kotlin-gradle` plugin is active, Then it successfully extracts `test_count` from `junit_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `test_coverage_pct` from `jacoco_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `build_warnings` by scraping the build log, respecting Kotlin compiler versions.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `lint_errors` and `lint_warnings` from `android_lint_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts CVE counts (critical, high, medium) from `owasp_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `detekt_issues` by scraping the build log."
-      ],
-      "description": "This epic covers the final output of Kronograf: generating clear, embeddable SVG charts from the time-series data stored in the Git data branch. It includes reading the historical data, processing it, and using a library to render the final SVG image.",
-      "type": "Epic"
-    },
-    {
-      "acceptance_criteria": [
-        "Given I have the application open, When I press a \"Start\" button, Then a timer begins to count up.",
-        "Given a timer is running, When I press a \"Stop\" button, Then the timer stops.",
-        "Given a timer is running, When I enter a description for the current task, Then the description is associated with the time entry."
-      ],
-      "value_hypothesis": "Users will be able to successfully create their first time entry, validating the core value proposition of the application.",
-      "user_story": "As a Freelancer, I want to start and stop a timer for a specific task, so that I can accurately track the time I spend on my work.",
-      "id": "KRO-1",
-      "priority": "P0",
-      "title": "Core Time Tracking",
-      "type": "User Story"
-    },
-    {
-      "user_story": "As a user, I want to start and stop a timer for a specific task, so that I can accurately track the time I spend on my work.",
-      "acceptance_criteria": [
-        "Given I am on the main dashboard, when I click the \"Start Timer\" button, then a new time entry is created and the timer starts counting up.",
-        "Given a timer is running, when I click the \"Stop Timer\" button, then the timer stops and the final duration is recorded for the time entry.",
-        "Given a timer is running, I should be able to associate it with a task or project."
-      ],
-      "value_hypothesis": "Users will be able to easily and accurately track their time, leading to better insights and invoicing.",
-      "id": "STOR-1",
-      "priority": "P0",
-      "title": "Start and Stop Timer",
-      "type": "User Story"
-    },
-    {
-      "user_story": "As a user, I want to manually add a time entry for a past activity, so that I can account for time I forgot to track.",
-      "priority": "P1",
-      "id": "STOR-2",
-      "title": "Manual Time Entry",
-      "value_hypothesis": "Users can maintain a complete and accurate record of their time, even if they miss tracking it live.",
-      "acceptance_criteria": [
-        "Given I am on the time entry page, when I click the \"Add Manual Entry\" button, then a form appears to enter the details of the time entry.",
-        "Given I have filled out the manual entry form (task name, start time, end time), when I click \"Save\", then a new time entry is created with the specified duration.",
-        "Given I am creating a manual entry, the system should validate that the end time is after the start time."
-      ],
-      "type": "User Story"
-    },
-    {
-      "acceptance_criteria": [
-        "Given I am on the main dashboard, when the page loads, then I should see a list of all my time entries for the current day.",
-        "Given I am viewing my daily time entries, each entry in the list should display the task name, duration, and start/end times.",
-        "Given there are no time entries for the current day, the list should display a message indicating that no time has been tracked today."
-      ],
-      "value_hypothesis": "Users will have a clear and immediate overview of their daily progress, helping them to stay on track.",
-      "user_story": "As a user, I want to view a list of my time entries for the current day, so that I can see how I've spent my time.",
-      "id": "STOR-3",
-      "priority": "P1",
-      "title": "View Daily Time Entries",
-      "type": "User Story"
-    },
-    {
-      "value_hypothesis": "Users will be able to categorize their time entries, leading to more organized and insightful reports.",
-      "dependencies": [
-        "STOR-1"
-      ],
-      "user_story": "As a user, I want to create and manage projects, so that I can organize my time entries.",
-      "title": "Project Management (Basic)",
-      "acceptance_criteria": [
-        "Given I am on the project management page, when I click the \"Create Project\" button, then I can enter a name and description for the new project.",
-        "Given I have entered the project details, when I click \"Save\", then the new project is created and appears in the list of projects.",
-        "Given I am creating a project, the project name should be unique."
-      ],
-      "priority": "P0",
-      "id": "STOR-4",
-      "type": "User Story"
-    },
-    {
-      "priority": "P0",
-      "description": "As a Platform Engineer, I need the Kronograf CLI to read a central `kronograf.yml` configuration file and load the plugins specified, so I can define how the tool operates for my repository.",
-      "value_hypothesis": "Users can successfully configure and activate the desired plugins for their project, enabling them to start collecting relevant KPIs.",
-      "epic_id": "EPIC-4",
-      "user_story": "As a Platform Engineer, I want the Kronograf CLI to read a `kronograf.yml` file from the root of my repository so that I can configure which plugins to activate.",
-      "id": "STOR-5",
-      "title": "CLI Reads Local `kronograf.yml` and Loads Plugins",
-      "acceptance_criteria": [
-        "Given a `kronograf.yml` file is present in the repository, When the Kronograf CLI is run, Then it successfully reads the configuration without errors.",
-        "Given a `plugins:` section in `kronograf.yml` lists `android-kotlin-gradle`, When the CLI runs, Then it loads the built-in `android-kotlin-gradle.yml` plugin file.",
-        "Given a project has a local `.kronograf/plugins/my-plugin.yml`, When the CLI runs, Then it loads the local plugin file in addition to any built-in ones."
-      ],
-      "type": "User Story"
-    },
-    {
-      "user_story": "As a Software Developer, I want Kronograf to parse my JUnit XML reports and extract the total number of tests, so that I can track the growth of our test suite over time.",
-      "priority": "P0",
-      "value_hypothesis": "Users can successfully and accurately track their total test count, providing a basic but valuable measure of test suite health and growth.",
-      "description": "This story focuses on implementing the specific logic to parse JUnit XML files and extract the total number of tests. It's a foundational piece of the Android/Gradle plugin and a good first test case for the extraction pipeline.",
-      "epic_id": "EPIC-1",
-      "dependencies": [
-        "STOR-5"
-      ],
-      "id": "STOR-6",
-      "acceptance_criteria": [
-        "Given a JUnit XML file located at `**/build/test-results/**/*.xml`, When the extractor for `test_count` runs, Then it correctly parses the XML file.",
-        "Given a JUnit XML file with a `<testsuite>` tag where `tests=\"42\"`, When the extractor runs, Then the extracted value for `test_count` is 42.",
-        "Given multiple JUnit XML files in different directories, When the extractor runs, Then it finds all files matching the path patterns and sums the `tests` attribute from each file to produce a single total value."
-      ],
-      "title": "Extract Test Count from JUnit XML Reports",
-      "type": "User Story"
-    },
-    {
-      "description": "This story implements the core logic for storing extracted data. It involves creating a dedicated branch, appending data to a file, and committing the results. This is the heart of the \"Git-native\" storage approach.",
-      "epic_id": "EPIC-2",
-      "priority": "P0",
-      "id": "STOR-7",
-      "acceptance_criteria": [
-        "Given the extractor has produced a data point (e.g., `{\"metric\": \"test_count\", \"value\": 42}`), When the Git storage module is run, Then it checks for the existence of a branch named `kronograf-data`.",
-        "Given the `kronograf-data` branch does not exist, When the module runs, Then it creates the branch based on the current commit.",
-        "Given a new data point, When the module runs, Then it appends the data point as a new line to a file named `metrics.ndjson` in the data branch.",
-        "Given the `metrics.ndjson` file has been modified, When the module completes, Then it creates a commit with a standardized message (e.g., \"chore(kronograf): Update metrics for commit <sha>\") and pushes the branch to the remote."
-      ],
-      "title": "Store Extracted KPI Data Point in a Git Data Branch",
-      "dependencies": [
-        "STOR-6"
-      ],
-      "user_story": "As a DevOps Engineer, I want Kronograf to commit the extracted KPI data as a structured text file to a dedicated data branch, so that the historical data is versioned and stored alongside my code without external databases.",
-      "value_hypothesis": "The system can reliably store data points in a Git-native format, providing a persistent, auditable history of KPIs.",
-      "type": "User Story"
-    },
-    {
-      "value_hypothesis": "Users can see a visual representation of their KPI data, confirming that the end-to-end data pipeline is working and providing initial value.",
-      "acceptance_criteria": [
-        "Given a `kronograf-data` branch with a `metrics.ndjson` file containing `test_count` data, When the rendering module is run, Then it successfully reads and parses all data points for the `test_count` metric.",
-        "Given the parsed `test_count` data, When the module runs, Then it generates a valid SVG file named `test_count.svg`.",
-        "Given the generated SVG file, When opened, Then it displays a simple, un-styled line chart with the commit date on the X-axis and the `test_count` value on the Y-axis.",
-        "Given the SVG is generated, When the module completes, Then the SVG file is committed to the `kronograf-data` branch."
-      ],
-      "dependencies": [
-        "STOR-7"
-      ],
-      "user_story": "As an Engineering Lead, I want Kronograf to generate a simple SVG line chart from the stored `test_count` data, so that I can see the trend of our test suite's size over time.",
-      "description": "This story creates the final piece of the vertical slice: visualizing the data. It focuses on reading the stored data and generating a very basic, un-styled SVG line chart. Aesthetics and advanced features will be handled in later stories.",
-      "epic_id": "EPIC-3",
-      "id": "STOR-8",
-      "priority": "P0",
-      "title": "Render a Basic SVG Line Chart for a Single KPI",
-      "type": "User Story"
-    },
-    {
-      "title": "Track Kotlin Lines of Code (LOC)",
-      "epic_id": "EPIC-5",
-      "acceptance_criteria": [
-        "Given a set of Kotlin source files (`.kt`, `.kts`), When the extractor runs, Then it recursively finds all files matching the pattern.",
-        "Given a Kotlin source file, When the counter runs, Then it correctly counts the number of non-empty, non-comment lines of code.",
-        "Given multiple source files, When the extractor runs, Then it sums the LOC from all files to produce a single total value."
-      ],
-      "id": "STOR-9",
-      "description": "This story adds a new metric to the Android/Gradle plugin to count the lines of code in Kotlin files. It requires a file-walking and line-counting mechanism.",
-      "value_hypothesis": "Tracking codebase size will help teams correlate complexity with other quality metrics, providing context for trends in build times, test coverage, and warnings.",
-      "user_story": "As an Engineering Lead, I want to track the number of Kotlin lines of code in my project, so that I can understand the size and growth of the codebase over time.",
-      "priority": "P1",
-      "type": "User Story"
-    }
-  ],
-  "definition_of_done": [
-    "Code reviewed",
-    "Automated tests passing",
-    "Acceptance criteria met",
-    "No critical security issues",
-    "Docs updated if needed"
-  ],
-  "sprint_goal": "",
-  "sprint_backlog": [
-    {
-      "id": "EPIC-2",
-      "title": "Implement Git-based Data Store",
-      "status": "In Progress",
-      "priority": "P0",
-      "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
-      "acceptance_criteria": [
-        "Given the KPI extractor has produced a JSON data point for a commit, When the data store stage is executed, Then the system checks out the configured data branch (e.g., `kronograf-data`), creating it if it doesn't exist.",
-        "Given a new JSON data point, When the data store stage runs, Then the JSON data point is appended as a new line to the `metrics.ndjson` file in the data branch.",
-        "Given the `metrics.ndjson` file has been updated, When the data store stage completes, Then the changes are committed and pushed back to the remote repository using a dedicated CI token.",
-        "Given the extractor runs for a commit that already has a data point in `metrics.ndjson`, When the data store stage is executed, Then it does not write a duplicate entry."
       ]
     },
     {
       "id": "EPIC-1",
+      "type": "User Story",
       "title": "Implement the core Plugin Engine",
       "status": "In Progress",
       "priority": "P0",
@@ -302,260 +92,75 @@
       ]
     },
     {
-      "title": "KRO-1",
-      "approach": "Implement a command-line interface (CLI) application using Python's standard library. The application will be a single script that allows users to start a timer, stop it, and add a description. The data will be stored in-memory for the duration of the application's run. This approach prioritizes speed of implementation and validation of the core logic over a persistent or polished UI.",
-      "risks_assumptions": [
-        "Assumption: A simple CLI is sufficient for the MVP and meets the acceptance criteria.",
-        "Assumption: Data persistence is not required for this story.",
-        "Risk: The user interaction model via a simple text loop might be clunky, but it's the fastest way to meet the requirements."
-      ],
-      "test_approach": "Unit tests will be written for the core `Timer` logic to ensure accuracy. The CLI interaction will be tested manually during development.",
-      "tasks": [
-        "[ ] Set up a basic Python project structure (`src/kronograf`, `tests/`).",
-        "[ ] Implement a `TimeEntry` data structure.",
-        "[ ] Implement a `Timer` class with `start()`, `stop()`, and `get_elapsed_time()` methods.",
-        "[ ] Create a `main.py` with a simple interactive loop (e.g., `input()`) to handle user commands (`start`, `stop`, `describe <text>`, `exit`).",
-        "[ ] Write unit tests for the `Timer` class.",
-        "[ ] Create a `requirements.txt` file.",
-        "[ ] Add a basic `README.md` with instructions on how to run the application."
-      ],
-      "estimate": 75000,
-      "dod_checks": [
-        "Code is written and committed to a feature branch.",
-        "Unit tests are written and passing.",
-        "Code is peer-reviewed (simulated by PR process).",
-        "Functionality meets all acceptance criteria.",
-        "The build is green (CI passes).",
-        "The increment is potentially releasable."
+      "id": "EPIC-3",
+      "type": "User Story",
+      "title": "Build the Android/Kotlin/Gradle Reference Plugin",
+      "status": "Ready",
+      "priority": "P0",
+      "user_story": "As a Plugin Author, I want a complete, production-ready plugin for a popular tech stack (Android/Kotlin/Gradle), so that I have a clear example of how to define various metric source types and aggregation rules.",
+      "acceptance_criteria": [
+        "Given an Android project built with Gradle and Kotlin, When the `android-kotlin-gradle` plugin is active, Then it successfully extracts `test_count` from `junit_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `test_coverage_pct` from `jacoco_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `build_warnings` by scraping the build log, respecting Kotlin compiler versions.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `lint_errors` and `lint_warnings` from `android_lint_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts CVE counts (critical, high, medium) from `owasp_xml` reports.",
+        "Given the same project, When the plugin is active, Then it successfully extracts `detekt_issues` by scraping the build log."
+      ]
+    }
+  ],
+  "definition_of_done": [
+    "Code reviewed",
+    "Automated tests passing",
+    "Acceptance criteria met",
+    "No critical security issues",
+    "Docs updated if needed"
+  ],
+  "sprint_goal": "",
+  "sprint_backlog": [
+    {
+      "id": "EPIC-2",
+      "type": "User Story",
+      "title": "Implement Git-based Data Store",
+      "status": "In Progress",
+      "priority": "P0",
+      "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
+      "acceptance_criteria": [
+        "Given the KPI extractor has produced a JSON data point for a commit, When the data store stage is executed, Then the system checks out the configured data branch (e.g., `kronograf-data`), creating it if it doesn't exist.",
+        "Given a new JSON data point, When the data store stage runs, Then the JSON data point is appended as a new line to the `metrics.ndjson` file in the data branch.",
+        "Given the `metrics.ndjson` file has been updated, When the data store stage completes, Then the changes are committed and pushed back to the remote repository using a dedicated CI token.",
+        "Given the extractor runs for a commit that already has a data point in `metrics.ndjson`, When the data store stage is executed, Then it does not write a duplicate entry."
       ]
     },
     {
-      "title": "STOR-4",
-      "estimate": 700,
-      "risks_assumptions": "- Assumption: A simple in-memory data store is sufficient for the current sprint.\n- Risk: The UI implementation could be more complex than initially anticipated.",
-      "tasks": [
-        "Define the `Project` data model.",
-        "Implement the `create_project` backend function.",
-        "Implement the `list_projects` backend function.",
-        "Create a basic UI form for project creation.",
-        "Develop a UI component to display the list of projects.",
-        "Write unit tests for all backend functions."
-      ],
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
-      ],
-      "approach": "I will begin by establishing a basic data model for 'Projects', which will simply consist of a name and a description. The backend logic will be developed to support the creation and listing of these projects. For the initial phase, I will use a simple in-memory store, with the clear assumption that this will be replaced by a more robust, persistent database solution in a later iteration. Concurrently, a minimalist user interface will be created to facilitate these operations, and I will write unit tests for the backend functions to ensure their reliability.",
-      "test_approach": "I will write unit tests for the backend functions, specifically for `create_project` and `list_projects`, to ensure they are working as expected. Additionally, I will conduct basic UI tests to confirm that the form and list components render correctly and are functional."
-    },
-    {
-      "title": "STOR-1",
-      "test_approach": "I will write unit tests for the `start_timer` and `stop_timer` functions to verify that they are working correctly. I will also perform manual UI testing to ensure that the timer starts, stops, and correctly associates with a project.",
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
-      ],
-      "tasks": [
-        "Define the `TimeEntry` data model.",
-        "Implement the `start_timer` backend function.",
-        "Implement the `stop_timer` backend function.",
-        "Create a UI with \"Start\" and \"Stop\" buttons.",
-        "Add a project selection dropdown to the UI.",
-        "Write unit tests for the timer logic."
-      ],
-      "risks_assumptions": "- Assumption: The timer logic will be straightforward to implement.\n- Risk: The frontend state management for the timer could introduce unexpected complexity.",
-      "approach": "With the project management feature in place, I will now focus on the core timer functionality. I will begin by defining a `TimeEntry` data model, which will include attributes such as `start_time`, `end_time`, `duration`, and a reference to the associated `Project`. I will then develop the backend logic to handle the starting and stopping of the timer. On the frontend, I will create a simple UI with \"Start\" and \"Stop\" buttons, along with a dropdown menu to select a project. To ensure the reliability of the system, I will write unit tests for the timer logic.",
-      "estimate": 1200
-    },
-    {
-      "title": "STOR-2",
-      "approach": "To enable users to add manual time entries, I will begin by creating a new UI form that captures the necessary details, including the task name, start time, and end time. The backend will be updated with a new function, `create_manual_entry`, which will handle the logic for creating and storing these entries. This will include validation to ensure that the end time is after the start time. To ensure the reliability of this feature, I will write unit tests for the validation logic.",
-      "risks_assumptions": "- Assumption: The UI form will be a simple and straightforward implementation.\n- Risk: The date and time handling logic could be more complex than anticipated.",
-      "estimate": 800,
-      "test_approach": "I will write unit tests for the validation logic to ensure that it correctly handles valid and invalid time entries. I will also perform manual UI testing to confirm that the form works as expected and that the validation messages are displayed correctly.",
-      "tasks": [
-        "Create a UI form for manual time entry.",
-        "Implement the `create_manual_entry` backend function.",
-        "Add validation for start and end times.",
-        "Write unit tests for the validation logic."
-      ],
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
+      "id": "EPIC-1",
+      "type": "User Story",
+      "title": "Implement the core Plugin Engine",
+      "status": "In Progress",
+      "priority": "P0",
+      "user_story": "As a Plugin Author, I want a core engine that can load YAML plugin files, detect tool versions from logs, and apply the correct versioned rules, so that I can define and test KPI extraction logic for any build tool.",
+      "acceptance_criteria": [
+        "Given a valid `kronograf.yml` file and a set of plugin YAML files, When the engine is invoked, Then it correctly loads and parses all plugin definitions.",
+        "Given a build log file containing a tool version string (e.g., \"Gradle 8.9\"), When the engine runs version detection, Then it correctly identifies the tool and its semantic version.",
+        "Given a plugin with multiple versioned rules for a metric, When the engine processes a log file with a detected tool version, Then it selects and applies only the rule whose `version_range` matches the detected version.",
+        "Given a rule with a `log_scrape` source, When the engine processes a log file, Then it correctly applies the regex pattern and `aggregate` mode (e.g., `count_matches`, `extract_first`) to produce the expected metric value.",
+        "Given a rule with a structured report source (e.g., `junit_xml`), When the engine is pointed at a directory of report files, Then it correctly parses the files and aggregates the metric value as specified."
       ]
-    },
-    {
-      "title": "STOR-3",
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
-      ],
-      "tasks": [
-        "Implement the `get_daily_entries` backend function.",
-        "Create a UI component to display the list of time entries.",
-        "Write unit tests for the backend function."
-      ],
-      "risks_assumptions": "- Assumption: The UI for displaying the time entries will be a simple list.\n- Risk: The backend query for retrieving daily entries could be more complex than anticipated.",
-      "estimate": 600,
-      "test_approach": "I will write unit tests for the `get_daily_entries` function to ensure that it correctly retrieves the time entries for the current day. I will also perform manual UI testing to confirm that the list displays the entries correctly.",
-      "approach": "To provide users with a clear overview of their daily time entries, I will begin by developing a new backend function, `get_daily_entries`, which will retrieve all time entries for the current day. On the frontend, I will create a new UI component that displays these entries in a list format, including the task name, duration, and start/end times. To ensure the reliability of this feature, I will write unit tests for the backend function."
-    },
-    {
-      "title": "STOR-5",
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
-      ],
-      "approach": "I'll begin by scaffolding a basic command-line interface (CLI) application using a standard Python library like `argparse` or `click`. The core logic will involve finding and parsing the `kronograf.yml` file from the repository root. I will use a reliable YAML library, such as `PyYAML`, for this task. The implementation will need to correctly resolve plugin paths, distinguishing between built-in plugins (located in a `/plugins` directory) and project-specific local plugins (in `/.kronograf/plugins/`). To satisfy the acceptance criteria within this story, I will create a dummy `plugins/android-kotlin-gradle.yml` file, as the actual plugin implementation is slated for a different story.",
-      "estimate": 950,
-      "risks_assumptions": "- Assumption: The `kronograf.yml` file will be located in the root of the repository where the CLI is executed.\n- Assumption: The YAML structure for configuration will be straightforward, as documented in the PRD.\n- Risk: Potential dependency conflicts with the chosen YAML parsing library, though this is a low risk.",
-      "test_approach": "I will use a test-driven approach, creating a temporary file and directory structure within the unit tests to simulate a user's repository. My tests will cover the following scenarios:\n1.  A repository containing a valid `kronograf.yml` file that specifies a built-in plugin.\n2.  A repository that includes both a `kronograf.yml` file and a local plugin in the `.kronograf/plugins/` directory.\n3.  A case where the `kronograf.yml` file is missing, ensuring the CLI provides a clear and user-friendly error message.\n4.  A case where a specified plugin cannot be found, verifying that the error is handled gracefully.",
-      "tasks": [
-        "Set up the basic CLI application structure and entry point.",
-        "Implement file system logic to find and read the `kronograf.yml` file.",
-        "Integrate a YAML parsing library to load the configuration into memory.",
-        "Implement the logic to parse the `plugins` key from the configuration.",
-        "Create a placeholder built-in `plugins/android-kotlin-gradle.yml` file.",
-        "Implement the path resolution logic for both built-in and local plugins.",
-        "Write unit tests to verify that configuration and both plugin types are loaded correctly."
-      ]
-    },
-    {
-      "title": "STOR-6",
-      "risks_assumptions": "- Assumption: The JUnit XML reports will follow the standard schema, particularly the placement of the `tests` attribute within the `<testsuite>` tag.\n- Assumption: The performance of parsing a large number of XML files will be acceptable for a typical project.\n- Risk: Non-standard or malformed XML in some test runners could cause parsing errors. I will mitigate this by adding error handling to gracefully skip unparseable files.",
-      "tasks": [
-        "Select and integrate an appropriate XML parsing library.",
-        "Implement the file discovery logic using `glob` based on the `path_patterns` from the plugin definition.",
-        "Create the core parsing function to open an XML file and extract the `tests` attribute from `<testsuite>` tags.",
-        "Implement the `sum_tests` aggregation logic to sum the counts from multiple files.",
-        "Connect the parsing logic to the main CLI application, triggered when a `junit_xml` source is defined.",
-        "Write unit tests with sample JUnit XML files, covering single-file, multi-file, and missing-file scenarios."
-      ],
-      "test_approach": "I will create a set of representative JUnit XML files for testing, including:\n1.  A standard, single-module report.\n2.  A multi-module scenario with several XML files in different directories to test the aggregation logic.\n3.  A file where the `tests` attribute is zero or missing, to ensure correct handling of edge cases.\n4.  A malformed XML file to verify that the parser handles errors gracefully without crashing the application.\nMy unit tests will invoke the extractor and assert that the returned numerical value is correct for each case.",
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
-      ],
-      "estimate": 1100,
-      "approach": "Building on the plugin loading mechanism from `STOR-5`, I will focus on implementing the logic for a specific source type: `junit_xml`. I will choose a standard, well-maintained XML parsing library in Python, such as the built-in `xml.etree.ElementTree`, to handle the report files. The core of the implementation will involve searching for files that match the provided `path_patterns` using Python's `glob` module. For each file found, I will parse the XML to find the `<testsuite>` tags and extract the `tests` attribute. Finally, I will implement the `sum_tests` aggregator, which will simply sum the test counts from all discovered files to produce a single integer output."
-    },
-    {
-      "title": "STOR-7",
-      "tasks": [
-        "Develop a Python module to execute shell commands, specifically for Git operations.",
-        "Implement the logic to check if the `kronograf-data` branch exists remotely and locally.",
-        "Implement the logic to create the `kronograf-data` branch if it does not exist.",
-        "Implement the logic to check out the data branch.",
-        "Implement the function to append a new data point to the `metrics.ndjson` file.",
-        "Implement the commit logic, including a standardized commit message.",
-        "Implement the push logic, with error handling for common issues like authentication failures.",
-        "Write integration tests that operate on a temporary, local Git repository to validate the end-to-end storage process."
-      ],
-      "test_approach": "Unit tests are insufficient for this story due to the heavy reliance on Git's state. I will create integration tests that initialize a new Git repository in a temporary directory. The test sequence will be:\n1.  Initialize a repository with an initial commit.\n2.  Run the storage module for the first time, asserting that the `kronograf-data` branch is created and contains a `metrics.ndjson` file with one entry.\n3.  Run the storage module a second time, asserting that the branch is not re-created and that the `metrics.ndjson` file now contains two entries.\n4.  The tests will inspect the branch's Git history to ensure that the commits have the expected standardized messages.\nThese tests will be executed in a sandboxed environment to prevent any interaction with real remote repositories.",
-      "estimate": 1450,
-      "risks_assumptions": "- Assumption: The CI/CD environment will have Git installed and properly configured with credentials (e.g., via a deploy key or token) to push to the repository.\n- Assumption: The `kronograf-data` branch will not be subject to frequent, conflicting manual changes.\n- Risk: A race condition could occur if two CI jobs for the same commit run simultaneously, potentially leading to a push conflict. The logic should be resilient to this, possibly by incorporating a pull-rebase before pushing.\n- Risk: The size of the `metrics.ndjson` file could become very large over time, potentially impacting performance. For this initial story, this risk is considered acceptable.",
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
-      ],
-      "approach": "I will implement the Git storage logic using a command-line wrapper around the standard `git` executable. This approach avoids direct dependencies on specific Git libraries and ensures that the tool behaves exactly as a user would expect from their shell. The process will be as follows: First, check for the existence of the `kronograf-data` branch. If it doesn't exist, I will create it from the current `HEAD`. Next, I will switch to this branch (or a temporary worktree) to perform file operations. I will then append the new data point, formatted as a JSON line, to the `metrics.ndjson` file. Finally, I will use `git add`, `git commit`, and `git push` commands to save the changes back to the remote repository. Robust error handling will be added to manage potential git conflicts or authentication issues during the push."
-    },
-    {
-      "title": "STOR-8",
-      "dod_checks": [
-        "Code reviewed",
-        "Unit tests written and passing",
-        "Acceptance criteria met",
-        "Deployed to a staging environment (or local equivalent)"
-      ],
-      "approach": "To complete our vertical slice, I will implement a basic SVG chart generator. The process will start with the logic from `STOR-7` to check out the `kronograf-data` branch and read the `metrics.ndjson` file. I will parse this file line by line, collecting all data points for the target metric (e.g., `test_count`). I will then use a suitable Python library for generating SVG charts, such as `pygal` or `svg.py`, to create a simple, unstyled line graph. The X-axis will represent the commit timestamp, and the Y-axis will show the metric's value. Once the SVG content is generated, I will save it to a file (e.g., `test_count.svg`) and use the same Git logic from `STOR-7` to commit and push this new or updated file to the `kronograf-data` branch.",
-      "tasks": [
-        "Research and select a lightweight Python library for SVG generation.",
-        "Implement the logic to read and parse the `metrics.ndjson` file from the data branch.",
-        "Implement data filtering logic to isolate the data points for a single metric.",
-        "Create the core chart generation function that takes the data and produces SVG content.",
-        "Integrate the SVG generation into the main CLI.",
-        "Implement the logic to save the generated SVG to a file.",
-        "Use the existing Git module to commit and push the SVG file to the data branch.",
-        "Write integration tests that first seed a `metrics.ndjson` file and then verify that a valid, non-empty SVG file is created."
-      ],
-      "estimate": 1300,
-      "risks_assumptions": "- Assumption: A simple line chart with minimal styling is sufficient to meet the acceptance criteria.\n- Assumption: The performance of reading and parsing the entire `metrics.ndjson` file will be acceptable for the initial sprint.\n- Risk: Choosing an SVG library that is overly complex or has heavy dependencies could add unnecessary bloat. I will mitigate this by evaluating lightweight options first.",
-      "test_approach": "Similar to `STOR-7`, this story requires integration testing. The test setup will involve creating a temporary Git repository and pre-populating the `kronograf-data` branch with a sample `metrics.ndjson` file containing several data points for `test_count`. The test will then:\n1.  Run the SVG generation module.\n2.  Assert that a file named `test_count.svg` is created in the data branch.\n3.  Read the content of the generated SVG file and assert that it is a valid XML/SVG structure and is not empty.\n4.  A \"snapshot\" testing approach could be used, where the generated SVG is compared against a known-good version, although this can be brittle. A more robust test would be to parse the SVG and verify that it contains the expected number of data points."
     }
   ],
-  "impediment_log": [
-    {
-      "description": "Git user is not configured, so I cannot commit my changes. Please run `git config --global user.name 'DevTeam'` and `git config --global user.email 'devteam@kronograf.io'`. Also, please ensure that the SSH key is correctly configured for pushing to the remote repository.",
-      "owner": "ScrumMaster",
-      "status": "open"
-    },
-    {
-      "description": "Critical Misalignment: The proposed sprint backlog for a time-tracking application is completely incorrect. The user has clarified that the project is not a time-tracking solution.",
-      "owner": "ScrumOrchestrator",
-      "status": "open"
-    }
-  ],
-  "retro_actions": [
-    {
-      "action": "Review and confirm the product vision directly with the user before any backlog refinement begins.",
-      "owner": "ProductOwner",
-      "success_metric": "The next sprint plan presented to the user is approved without major directional changes.",
-      "status": "open"
-    }
-  ],
-  "decision_log": [
-    {
-      "title": "Create Initial Product Roadmap",
-      "decision": "Create an initial product roadmap for v0.1.0 focused on core functionality.",
-      "rationale": "The ROADMAP.md file was missing. A roadmap is critical for aligning the team on product direction and release goals. This initial version will codify the first step in our product vision.",
-      "owner": "ProductOwner"
-    },
-    {
-      "title": "Product Vision Reset to Technical Debt Visualizer",
-      "decision": "The product vision has been updated to focus on visualizing technical debt for Git repositories, based on the user-provided PRD Executive Summary. The previous time-tracking concept is fully abandoned.",
-      "rationale": "The user provided a clear executive summary for the PRD, which explicitly defines the product's purpose. This new vision aligns directly with the user's stated requirements.",
-      "owner": "ProductOwner"
-    }
-  ],
+  "impediment_log": [],
+  "retro_actions": [],
+  "decision_log": [],
   "sprint_report": "",
   "budgets": {
     "total": 1000000,
-    "total_usd": 2.0,
+    "total_usd": 0.5,
     "agents": {}
   },
   "token_usage": {
-    "total": 7053632,
+    "total": 17080,
     "agents": {
-      "ScrumOrchestrator": 51613,
-      "ProductOwner": 6289959,
-      "DevTeam": 481113,
-      "ScrumMaster": 230947
+      "ScrumOrchestrator": 17080
     }
   },
-  "story_estimates": {
-    "KRO-1": 75000,
-    "STOR-4": 700,
-    "STOR-1": 1200,
-    "STOR-2": 800,
-    "STOR-3": 600,
-    "STOR-5": 950,
-    "STOR-6": 1100,
-    "STOR-7": 1450,
-    "STOR-8": 1300
-  }
+  "story_estimates": {}
 }
