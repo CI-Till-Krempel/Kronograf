@@ -1,0 +1,15 @@
+# This is a placeholder for the full plugin definition.
+# It is used in STOR-5 to verify that the plugin loading mechanism
+# can correctly find and parse built-in plugin files.
+plugin:
+  id: android-kotlin-gradle
+  name: "Android – Kotlin & Gradle"
+  description: "A placeholder plugin for testing."
+  version: "1.0.0"
+metrics:
+  - id: test_count
+    name: "Number of Tests"
+    unit: count
+    sources:
+      - type: junit_xml
+        # ...

@@ -37,6 +37,28 @@ Stories
 
 ---
 
+### v0.1.0
+Goals
+- Implement core time-tracking functionality.
+Stories
+- [ ] [STOR-1] Start and Stop Timer
+- [ ] [STOR-2] Manual Time Entry
+- [ ] [STOR-3] View Daily Time Entries
+- [ ] [STOR-4] Project Management (Basic)
+
+
+### v0.1.0-alpha
+Goals
+- Deliver a working end-to-end "vertical slice" of the core functionality: extract one KPI, store it in Git, and render a basic chart.
+- Prove the viability of the core architectural concepts (Git-native storage, pluggable extraction).
+
+Stories
+- [ ] [STOR-5] STOR-5
+- [ ] [STOR-6] STOR-6
+- [ ] [STOR-7] STOR-7
+- [ ] [STOR-8] STOR-8
+
+
 ## Task board (Kanban)
 
 Use either the per-version boards below or one global board; duplicate as needed for each active version.
