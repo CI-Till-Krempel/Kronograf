@@ -1,166 +1,244 @@
 {
-  "version": "1.0.0",
-  "product_vision": "- **Version:** 1.3 - **Status:** Draft - **Date:** February 2026 - **Change from v1.2:** Renamed tool from Repograde to Kronograf throughout. Teams working on long-lived software products often struggle to communicate the state of their codebase's technical health to stakeholders in customer reviews or steering meetings. Kronograf is a lightweight, CI/CD-integrated system that automatically extracts key quality KPIs from build artifacts, tracks them as time-series data across commits and releases, and renders them as embeddable SVG charts — suitable for display directly in a repository's README.md or any web page.",
-  "product_goals": [],
+  "version": null,
+  "product_vision": null,
+  "product_goals": null,
   "product_backlog": [
     {
-      "id": "EPIC-7",
-      "type": "User Story",
-      "title": "Build Historical Backfill Tool",
-      "status": "Ready",
-      "priority": "P2",
-      "user_story": "As an Engineering Lead adopting Kronograf in a mature repository, I want a CLI tool to generate historical KPI data from past commits, so that my charts show meaningful long-term trends from day one.",
-      "acceptance_criteria": [
-        "Given I run `kronograf backfill` in my repository, When the tool executes, Then it iterates through the git history (e.g., merge commits on main), checks out each commit into a temporary worktree, and runs the configured build command.",
-        "Given a historical build completes successfully, When the extractor runs, Then a data point is appended to the data store stamped with the original commit timestamp, not the current time.",
-        "Given a backfill operation is interrupted, When I re-run the `kronograf backfill` command, Then the tool automatically skips commits that already have data points and resumes from where it left off.",
-        "Given a historical commit fails to build, When the tool processes it, Then it handles the failure according to the `on_build_failure` policy in `kronograf.yml` (e.g., records nulls) and continues.",
-        "Given I run the tool with `--dry-run`, When it executes, Then it prints the list of commits it would process without actually running any builds."
-      ]
+      "summary": "This epic covers building the core YAML-based plugin system. It includes loading plugins, parsing rule definitions (including versioned rules), applying both structured report parsers and log scrapers, and handling different aggregation modes. This is the foundational component that enables Kronograf to be tool-agnostic.",
+      "title": "Implement the core Plugin Engine",
+      "description": "As a Platform Engineer, I want a flexible and extensible plugin engine so that I can define and manage how technical debt KPIs are extracted from various build and test tools without modifying the core application code.",
+      "status": "To Do",
+      "type": "Epic"
     },
     {
-      "id": "EPIC-2",
-      "type": "User Story",
-      "title": "Implement Git-based Data Store",
-      "status": "In Progress",
+      "description": "As a Platform Engineer, I want the Kronograf extractor to load and parse plugin definitions from both local files and URLs, as specified in `kronograf.yml`, so that I can define the set of active plugins for my project.",
+      "epic_title": "Implement the core Plugin Engine",
+      "user_story": "As a Platform Engineer, I want the Kronograf extractor to load and parse plugin definitions from both local files and URLs, so that I can define the set of active plugins for my project.",
+      "title": "Load and Parse Plugin Definitions",
+      "status": "To Do",
       "priority": "P0",
-      "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
       "acceptance_criteria": [
-        "Given the KPI extractor has produced a JSON data point for a commit, When the data store stage is executed, Then the system checks out the configured data branch (e.g., `kronograf-data`), creating it if it doesn't exist.",
-        "Given a new JSON data point, When the data store stage runs, Then the JSON data point is appended as a new line to the `metrics.ndjson` file in the data branch.",
-        "Given the `metrics.ndjson` file has been updated, When the data store stage completes, Then the changes are committed and pushed back to the remote repository using a dedicated CI token.",
-        "Given the extractor runs for a commit that already has a data point in `metrics.ndjson`, When the data store stage is executed, Then it does not write a duplicate entry."
-      ]
+        "- Given a valid `kronograf.yml` file, when the extractor runs, then it correctly identifies and loads the plugins listed in the `plugins` section.",
+        "- Given a plugin is defined with a URL, when the extractor runs, then it downloads and caches the plugin file.",
+        "- Given a `kronograf.yml` file with plugin overrides, when the extractor runs, then the overridden rules are used instead of the default ones."
+      ],
+      "type": "User Story"
     },
     {
-      "id": "EPIC-4",
-      "type": "User Story",
+      "title": "Parse Structured Reports",
+      "description": "As a Plugin Author, I want to define KPI sources that use built-in parsers for common structured report formats (like JUnit XML, JaCoCo, etc.), so that I can extract data more robustly than with log scraping.",
+      "priority": "P0",
+      "status": "To Do",
+      "acceptance_criteria": [
+        "- Given a JUnit XML report, when the extractor runs, then it correctly parses the number of tests.",
+        "- Given a JaCoCo XML report, when the extractor runs, then it correctly parses the test coverage percentage.",
+        "- Given an Android Lint XML report, when the extractor runs, then it correctly parses the number of lint errors and warnings.",
+        "- Given an OWASP Dependency-Check XML report, when the extractor runs, then it correctly parses the number of CVEs by severity."
+      ],
+      "user_story": "As a Plugin Author, I want to define KPI sources that use built-in parsers for common structured report formats, so that I can extract data more robustly than with log scraping.",
+      "epic_title": "Implement the core Plugin Engine",
+      "type": "User Story"
+    },
+    {
+      "priority": "P0",
+      "title": "Implement Log Scraper with Versioned Rules",
+      "description": "As a Plugin Author, I want to define KPI sources that use versioned, regex-based rules to scrape data from CI/CD build logs, so that I can extract KPIs when structured reports are not available.",
+      "user_story": "As a Plugin Author, I want to define KPI sources that use versioned, regex-based rules to scrape data from CI/CD build logs, so that I can extract KPIs when structured reports are not available.",
+      "status": "To Do",
+      "acceptance_criteria": [
+        "- Given a log file and a set of plugin rules, when the extractor runs, then it correctly counts the number of lines matching a pattern (`count_matches`).",
+        "- Given a log file and a set of plugin rules, when the extractor runs, then it correctly extracts a numeric value from the first matching line (`extract_first`).",
+        "- Given a log file and a set of plugin rules, when the extractor runs, then it correctly extracts a numeric value from the last matching line (`extract_last`).",
+        "- Given a log file and a set of plugin rules, when the extractor runs, then it correctly sums numeric values from all matching lines (`extract_sum`)."
+      ],
+      "epic_title": "Implement the core Plugin Engine",
+      "type": "User Story"
+    },
+    {
+      "title": "Implement Git-based Data Store",
+      "summary": "This epic covers the design and implementation of the data storage mechanism. For v1, this will be a dedicated Git branch within the same repository, holding an append-only NDJSON file. This approach is simple, requires no external infrastructure, and aligns with the Git-native philosophy of the tool.",
+      "status": "To Do",
+      "description": "As a Developer, I want to store the collected KPI data in a Git-native format, so that the data is versioned, auditable, and portable without requiring any external database or service.",
+      "type": "Epic"
+    },
+    {
+      "title": "Build the Android Kotlin Gradle Reference Plugin",
+      "summary": "This epic covers the creation of the `android-kotlin-gradle` plugin. This plugin will be the primary example for the community and will exercise all the features of the plugin engine, including multiple structured report parsers and complex log scraping rules.",
+      "description": "As a Plugin Author, I want a complete, production-ready reference plugin for a popular and complex ecosystem, so that I have a clear example of how to structure a plugin and what a good plugin looks like.",
+      "status": "To Do",
+      "type": "Epic"
+    },
+    {
       "title": "Create Static SVG Chart Generator",
-      "status": "Ready",
-      "priority": "P1",
-      "user_story": "As an Engineering Lead, I want the system to generate time-series SVG charts from the stored metric data, so that I can embed them in my `README.md` to visualize quality trends.",
-      "acceptance_criteria": [
-        "Given a `metrics.ndjson` file in the data branch, When the chart generator is run, Then it creates one SVG file for each metric configured in `kronograf.yml`.",
-        "Given a generated SVG chart, When viewed in a browser or GitHub README, Then it displays a clear time-series line graph of the metric's values.",
-        "Given the configuration specifies a `window_days` of 90, When the chart is generated, Then it only includes data points from the last 90 days.",
-        "Given the chart is generated, When committed to the data branch, Then it can be embedded in a Markdown file using a raw git URL and it renders correctly.",
-        "Given the SVG file, When inspected, Then it is self-contained, under 15KB, and contains CSS for dark/light mode."
-      ]
+      "status": "To Do",
+      "summary": "This epic covers the creation of the static SVG chart generator. This component will read the data from the Git-based data store and produce clean, self-contained, and theme-aware SVG files for each tracked KPI.",
+      "description": "As an Engineering Lead, I want to see the collected KPI data rendered as time-series SVG charts, so that I can embed them in my repository's README.md and easily communicate the state of our codebase's technical health to stakeholders.",
+      "type": "Epic"
     },
     {
-      "id": "EPIC-6",
-      "type": "User Story",
-      "title": "Create GitHub Actions Integration",
-      "status": "Ready",
-      "priority": "P1",
-      "user_story": "As a DevOps Engineer on GitHub, I want a native GitHub Action to run Kronograf, so that I can easily integrate KPI extraction and chart generation into my existing CI/CD workflow with just a few lines of YAML.",
-      "acceptance_criteria": [
-        "Given a GitHub Actions workflow, When I use the `kronograf/kronograf-action@v1`, Then the action successfully runs the KPI extractor over my build logs.",
-        "Given the action is configured to run the data store and chart generator steps, When the workflow job completes on the main branch, Then the `kronograf-data` branch is updated with the new data point and regenerated SVG charts.",
-        "Given the action runs, When I inspect the logs, Then it correctly uses the built-in `GITHUB_TOKEN` for authentication.",
-        "Given the action's documentation, When I read it, Then it clearly explains all inputs (e.g., log file path, configuration file path) and provides a copy-pasteable example."
-      ]
-    },
-    {
-      "id": "EPIC-5",
-      "type": "User Story",
       "title": "Create Plugin Author CLI",
-      "status": "Ready",
+      "summary": "This epic covers the development of the `kronograf plugin` CLI. This tool will allow plugin authors to validate the syntax of their YAML files, run the sample assertions included in the plugin, and test the plugin against real build logs.",
+      "description": "As a Plugin Author, I want a command-line interface (CLI) to validate and test my plugin definitions, so that I can be confident that my plugin is correct and will work as expected.",
+      "status": "To Do",
+      "type": "Epic"
+    },
+    {
+      "title": "Create GitHub Actions Integration",
+      "summary": "This epic covers the creation of a native GitHub Actions integration for Kronograf. This will make it easy for users to add Kronograf to their CI/CD pipeline with just a few lines of YAML.",
+      "description": "As a DevOps Engineer, I want to integrate Kronograf into my GitHub Actions workflow, so that KPI data is collected and charts are updated automatically on every build.",
+      "status": "To Do",
+      "type": "Epic"
+    },
+    {
+      "status": "To Do",
+      "description": "As an Engineering Lead, I want to be able to generate historical KPI data for my existing repository, so that I can have a complete picture of my project's technical health from the very beginning.",
+      "title": "Build Historical Backfill Tool",
+      "summary": "This epic covers the development of the historical backfill tool. This tool will allow users to run the KPI extractor against previous commits in their repository, generating a complete historical record of their technical debt metrics.",
+      "type": "Epic"
+    },
+    {
+      "acceptance_criteria": [
+        "- Given a successful KPI extraction run, when the data store stage is executed, then a single JSON data point is appended to the `metrics.ndjson` file on the `kronograf-data` branch.",
+        "- Given the `kronograf-data` branch does not exist, when the data store stage is executed for the first time, then the branch is created.",
+        "- Given a CI/CD environment, when the data store stage is executed, then it uses the provided CI bot token to push the changes to the remote repository."
+      ],
+      "title": "Append KPI Data to NDJSON File in Git Branch",
+      "priority": "P0",
+      "user_story": "As a Developer, I want to append KPI data to an NDJSON file on a dedicated Git branch, so that each CI run adds a new data point to the time-series.",
+      "description": "As a Developer, I want to append KPI data to an NDJSON file on a dedicated Git branch, so that each CI run adds a new data point to the time-series.",
+      "status": "To Do",
+      "epic_title": "Implement Git-based Data Store",
+      "type": "User Story"
+    },
+    {
+      "epic_title": "Build the Android Kotlin Gradle Reference Plugin",
+      "status": "To Do",
+      "title": "Extract Test Count and Coverage from Android/Gradle Build",
+      "user_story": "As a Developer using Android, I want the reference plugin to extract test count and coverage, so I can track my project's testing state.",
+      "description": "As a Developer using Android, Kotlin, and Gradle, I want the reference plugin to automatically extract the total number of tests and the overall test coverage percentage from my build artifacts, so that I can track the state of my project's testing.",
+      "acceptance_criteria": [
+        "- Given a `kronograf.yml` file with the `android-kotlin-gradle` plugin enabled, when the extractor runs on a project with JUnit XML reports, then the `test_count` metric is correctly extracted.",
+        "- Given the extractor runs on a project with JaCoCo XML reports, then the `test_coverage_pct` metric is correctly extracted.",
+        "- Given the plugin is run against test reports from both unit tests and Android instrumented tests, then the metrics are correctly aggregated."
+      ],
       "priority": "P1",
-      "user_story": "As a Plugin Author, I want a set of CLI commands to validate and test my plugin definitions, so that I can confidently develop new plugins for any tech stack without requiring a full CI pipeline.",
-      "acceptance_criteria": [
-        "Given a plugin YAML file with correct syntax and passing sample assertions, When I run `kronograf plugin validate <file>`, Then the command exits with a success code and reports the plugin is valid.",
-        "Given a plugin YAML file with a syntax error or a failing `sample_lines` assertion, When I run `kronograf plugin validate <file>`, Then the command exits with an error code and prints a descriptive error message.",
-        "Given a plugin file and a real build log, When I run `kronograf plugin test <plugin_file> --log <log_file>`, Then the command runs all configured rules against the log and reports the extracted values.",
-        "Given a project with a `kronograf.yml` file, When I run `kronograf plugin list`, Then the command lists all plugins activated for the project.",
-        "Given a build log and a plugin, When I run `kronograf plugin dry-run --log <log_file> --plugin <plugin_id>`, Then the output shows exactly which rules from the plugin matched lines in the log and what values were extracted."
-      ]
+      "type": "User Story"
     },
     {
-      "id": "EPIC-1",
-      "type": "User Story",
-      "title": "Implement the core Plugin Engine",
-      "status": "In Progress",
-      "priority": "P0",
-      "user_story": "As a Plugin Author, I want a core engine that can load YAML plugin files, detect tool versions from logs, and apply the correct versioned rules, so that I can define and test KPI extraction logic for any build tool.",
+      "user_story": "As an Android Developer, I want to extract build warnings and static analysis issues so that I can monitor code quality.",
+      "epic_title": "Build the Android Kotlin Gradle Reference Plugin",
+      "priority": "P1",
+      "description": "As a Developer using Android, Kotlin, and Gradle, I want the reference plugin to extract the number of build warnings, Lint issues, and Detekt violations, so that I can monitor and drive down static analysis findings.",
+      "title": "Extract Build Warnings and Static Analysis Issues from Android/Gradle Build",
+      "status": "To Do",
       "acceptance_criteria": [
-        "Given a valid `kronograf.yml` file and a set of plugin YAML files, When the engine is invoked, Then it correctly loads and parses all plugin definitions.",
-        "Given a build log file containing a tool version string (e.g., \"Gradle 8.9\"), When the engine runs version detection, Then it correctly identifies the tool and its semantic version.",
-        "Given a plugin with multiple versioned rules for a metric, When the engine processes a log file with a detected tool version, Then it selects and applies only the rule whose `version_range` matches the detected version.",
-        "Given a rule with a `log_scrape` source, When the engine processes a log file, Then it correctly applies the regex pattern and `aggregate` mode (e.g., `count_matches`, `extract_first`) to produce the expected metric value.",
-        "Given a rule with a structured report source (e.g., `junit_xml`), When the engine is pointed at a directory of report files, Then it correctly parses the files and aggregates the metric value as specified."
-      ]
+        "- Given the `android-kotlin-gradle` plugin is enabled, when the extractor runs against a build log with Kotlin and Gradle warnings, then the `build_warnings` metric is correctly extracted and aggregated.",
+        "- Given the extractor runs against a project with Android Lint XML reports, then the `lint_errors` and `lint_warnings` metrics are correctly extracted.",
+        "- Given the extractor runs against a project that uses `detekt`, then the `detekt_issues` metric is correctly extracted from the build log.",
+        "- Given the build uses a version of the Kotlin compiler that changes the warning format, when the extractor runs, then the correct versioned rule is applied to parse the warnings."
+      ],
+      "type": "User Story"
     },
     {
-      "id": "EPIC-3",
-      "type": "User Story",
-      "title": "Build the Android/Kotlin/Gradle Reference Plugin",
-      "status": "Ready",
       "priority": "P0",
-      "user_story": "As a Plugin Author, I want a complete, production-ready plugin for a popular tech stack (Android/Kotlin/Gradle), so that I have a clear example of how to define various metric source types and aggregation rules.",
+      "title": "Detect Tool Versions from Build Logs",
+      "user_story": "As a Plugin Author, I want the plugin engine to automatically detect tool versions from the build log, so that the correct versioned rules are applied.",
+      "status": "To Do",
+      "description": "As a Plugin Author, I want the plugin engine to automatically detect the versions of tools from the build log, so that the correct versioned rules are applied without manual configuration.",
       "acceptance_criteria": [
-        "Given an Android project built with Gradle and Kotlin, When the `android-kotlin-gradle` plugin is active, Then it successfully extracts `test_count` from `junit_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `test_coverage_pct` from `jacoco_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `build_warnings` by scraping the build log, respecting Kotlin compiler versions.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `lint_errors` and `lint_warnings` from `android_lint_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts CVE counts (critical, high, medium) from `owasp_xml` reports.",
-        "Given the same project, When the plugin is active, Then it successfully extracts `detekt_issues` by scraping the build log."
-      ]
+        "- Given a build log containing a recognizable version string for a tool (e.g., 'Gradle 8.9'), when the extractor runs, then it correctly identifies and stores the version number.",
+        "- Given a plugin rule with a `version_range` specified (e.g., '>=2.0.0'), when the engine has detected a matching tool version, then the rule is correctly selected for execution.",
+        "- Given a plugin rule with a `version_range` specified, when the engine has detected a tool version that does not match the range, then the rule is skipped.",
+        "- Given the engine cannot detect a tool version from the log, when a plugin has a fallback rule with `version_range: '*'`, then that rule is selected."
+      ],
+      "epic_title": "Implement the core Plugin Engine",
+      "type": "User Story"
+    },
+    {
+      "status": "To Do",
+      "epic_title": "Implement the core Plugin Engine",
+      "priority": "P1",
+      "title": "Aggregate Metric Values from Multiple Sources",
+      "acceptance_criteria": [
+        "- Given a metric is configured with multiple `sources` (e.g., multiple JUnit XML file patterns), when the extractor runs, then the values from all sources are aggregated into a single metric value using the specified aggregation mode (e.g., `sum_tests`).",
+        "- Given a log-scraped metric is configured with multiple `rules`, when the extractor runs, then the values extracted by each rule are aggregated using the `multi_rule_aggregate` mode (e.g., `sum`).",
+        "- Given the configuration for a metric is invalid (e.g., an unknown `aggregate` mode is used), when the extractor runs, then it reports a clear error message."
+      ],
+      "user_story": "As a Plugin Author, I want the plugin engine to aggregate values from multiple sources for a single metric, so that I can define comprehensive metrics.",
+      "description": "As a Plugin Author, I want the plugin engine to aggregate values from multiple sources or rules for a single metric, so that I can define comprehensive metrics that cover an entire project.",
+      "type": "User Story"
+    },
+    {
+      "epic_title": "Implement the core Plugin Engine",
+      "description": "As a Platform Engineer, I want to be able to activate and run multiple plugins concurrently in a single project, so that I can collect KPIs from different parts of my tech stack (e.g., frontend and backend).",
+      "acceptance_criteria": [
+        "- Given `kronograf.yml` activates two or more different plugins, when the extractor runs, then it processes metrics from all active plugins.",
+        "- Given two active plugins define a metric with the same `id`, when the extractor runs, then it produces a clear warning or error about the conflict and does not silently overwrite data.",
+        "- Given a project uses both the built-in `android-kotlin-gradle` plugin and a custom plugin from a URL, when the extractor runs, then metrics from both plugins are collected and stored in the same data point."
+      ],
+      "priority": "P2",
+      "user_story": "As a Platform Engineer, I want to activate and run multiple plugins concurrently, so that I can collect KPIs from different parts of my tech stack.",
+      "status": "To Do",
+      "title": "Run Multiple Plugins Concurrently",
+      "type": "User Story"
+    },
+    {
+      "priority": "P1",
+      "user_story": "As a Platform Engineer, I want to configure the data store settings in `kronograf.yml`, so that I can specify which branch to use for storing KPI data.",
+      "title": "Configure Git-based Data Store",
+      "description": "As a Platform Engineer, I want to configure the data store settings in `kronograf.yml`, so that I can specify which branch to use for storing KPI data.",
+      "status": "To Do",
+      "acceptance_criteria": [
+        "- Given a `kronograf.yml` file, when the `data_store` section is present, then the extractor uses the specified branch name (e.g., `kronograf-metrics`) instead of the default (`kronograf-data`).",
+        "- Given the `data_store` section specifies a `type` other than `git_branch`, when the extractor runs, then it produces a clear error message stating that only `git_branch` is supported in v1.0.",
+        "- Given the `data_store` section is absent from `kronograf.yml`, when the extractor runs, then it defaults to using the `git_branch` type and the `kronograf-data` branch name."
+      ],
+      "epic_title": "Implement Git-based Data Store",
+      "type": "User Story"
+    },
+    {
+      "status": "To Do",
+      "epic_title": "Build the Android Kotlin Gradle Reference Plugin",
+      "user_story": "As a Developer, I want the plugin to extract CVE counts from OWASP reports, so I can track and prioritize vulnerability remediation.",
+      "description": "As a Security-conscious Developer, I want the reference plugin to extract the number of CVEs at different severity levels from OWASP Dependency-Check reports, so that I can track and prioritize vulnerability remediation efforts.",
+      "priority": "P1",
+      "title": "Extract CVE Counts from OWASP Dependency-Check Report",
+      "acceptance_criteria": [
+        "- Given the `android-kotlin-gradle` plugin is enabled, when the extractor runs on a project with an OWASP Dependency-Check XML report, then the `cve_critical`, `cve_high`, and `cve_medium` metrics are correctly extracted based on CVSS scores.",
+        "- Given the OWASP report contains no vulnerabilities of a certain severity (e.g., no critical CVEs), then the corresponding metric is reported as 0.",
+        "- Given the OWASP report file is missing but configured in the plugin, when the extractor runs, then it logs a warning but does not fail the run, and reports the CVE metrics as 0 or null."
+      ],
+      "type": "User Story"
+    },
+    {
+      "status": "To Do",
+      "acceptance_criteria": [
+        "- Given the `android-kotlin-gradle` plugin is enabled, when the extractor runs against a build log that includes output from the `cloc` tool, then the `kotlin_loc` metric is correctly extracted.",
+        "- Given the `cloc` output shows zero lines of Kotlin code, then the metric is correctly reported as 0.",
+        "- Given the `cloc` output is not present in the build log, when the extractor runs, then it logs a warning but does not fail, and reports the `kotlin_loc` metric as null."
+      ],
+      "epic_title": "Build the Android Kotlin Gradle Reference Plugin",
+      "user_story": "As a Developer, I want the plugin to extract lines of Kotlin code from cloc output, so I can track codebase growth.",
+      "description": "As a Developer, I want the reference plugin to extract the total lines of Kotlin code from the output of the `cloc` tool, so that I can track the growth of the codebase over time.",
+      "title": "Extract Lines of Code from cloc Tool Output",
+      "priority": "P2",
+      "type": "User Story"
     }
   ],
-  "definition_of_done": [
-    "Code reviewed",
-    "Automated tests passing",
-    "Acceptance criteria met",
-    "No critical security issues",
-    "Docs updated if needed"
-  ],
-  "sprint_goal": "",
-  "sprint_backlog": [
-    {
-      "id": "EPIC-2",
-      "type": "User Story",
-      "title": "Implement Git-based Data Store",
-      "status": "In Progress",
-      "priority": "P0",
-      "user_story": "As a DevOps Engineer, I want Kronograf to store its time-series data in an append-only NDJSON file within a dedicated git branch, so that the quality metrics are versioned, auditable, and don't require external database infrastructure.",
-      "acceptance_criteria": [
-        "Given the KPI extractor has produced a JSON data point for a commit, When the data store stage is executed, Then the system checks out the configured data branch (e.g., `kronograf-data`), creating it if it doesn't exist.",
-        "Given a new JSON data point, When the data store stage runs, Then the JSON data point is appended as a new line to the `metrics.ndjson` file in the data branch.",
-        "Given the `metrics.ndjson` file has been updated, When the data store stage completes, Then the changes are committed and pushed back to the remote repository using a dedicated CI token.",
-        "Given the extractor runs for a commit that already has a data point in `metrics.ndjson`, When the data store stage is executed, Then it does not write a duplicate entry."
-      ]
-    },
-    {
-      "id": "EPIC-1",
-      "type": "User Story",
-      "title": "Implement the core Plugin Engine",
-      "status": "In Progress",
-      "priority": "P0",
-      "user_story": "As a Plugin Author, I want a core engine that can load YAML plugin files, detect tool versions from logs, and apply the correct versioned rules, so that I can define and test KPI extraction logic for any build tool.",
-      "acceptance_criteria": [
-        "Given a valid `kronograf.yml` file and a set of plugin YAML files, When the engine is invoked, Then it correctly loads and parses all plugin definitions.",
-        "Given a build log file containing a tool version string (e.g., \"Gradle 8.9\"), When the engine runs version detection, Then it correctly identifies the tool and its semantic version.",
-        "Given a plugin with multiple versioned rules for a metric, When the engine processes a log file with a detected tool version, Then it selects and applies only the rule whose `version_range` matches the detected version.",
-        "Given a rule with a `log_scrape` source, When the engine processes a log file, Then it correctly applies the regex pattern and `aggregate` mode (e.g., `count_matches`, `extract_first`) to produce the expected metric value.",
-        "Given a rule with a structured report source (e.g., `junit_xml`), When the engine is pointed at a directory of report files, Then it correctly parses the files and aggregates the metric value as specified."
-      ]
-    }
-  ],
-  "impediment_log": [],
-  "retro_actions": [],
-  "decision_log": [],
-  "sprint_report": "",
-  "budgets": {
-    "total": 1000000,
-    "total_usd": 0.5,
-    "agents": {}
-  },
+  "definition_of_done": null,
+  "sprint_goal": null,
+  "sprint_backlog": null,
+  "impediment_log": null,
+  "retro_actions": null,
+  "decision_log": null,
+  "sprint_report": null,
+  "budgets": null,
   "token_usage": {
-    "total": 17080,
+    "total": 413647,
     "agents": {
-      "ScrumOrchestrator": 17080
+      "ScrumOrchestrator": 3048,
+      "ProductOwner": 410599
     }
   },
-  "story_estimates": {}
+  "story_estimates": null
 }
